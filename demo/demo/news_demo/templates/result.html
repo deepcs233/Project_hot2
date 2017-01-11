@@ -1,0 +1,13 @@
+
+<h2>新闻所属类别：{{clf}}</h2>
+<h2> 相似新闻： </h2>
+
+{% if sm_news %}
+    <ul>
+    {% for new in sm_news %}
+        <li><a href="{{ new.1.0 }}/">{{ new.0 }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>未找到类似的新闻</p>
+{% endif %}
