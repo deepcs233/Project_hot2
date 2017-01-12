@@ -11,7 +11,7 @@ from utils import repeatability
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
 
-from  settings import *
+from settings import *
 
 with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
@@ -78,7 +78,7 @@ class genStreamNews(Basic):
             df.append(math.e**(self.news[i]['hot']/300-0.9))
             if (math.e**(self.news[i]['hot']/300-0.9))*random.random()>p_threshold:
                 news_count+=1
-                #if news_count>141: break
+                if news_count>141: break
                 t['type']='news'
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
@@ -118,6 +118,7 @@ class genStreamNews(Basic):
     def getAllLabel(self):
         
         self.newsStream=[]
+        self.news=[]
         start_time,last_time=self.process_time(column_sort='news_time',collection='news')
         for each in self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
             sort('hotxcount',pymongo.DESCENDING).limit(2000):

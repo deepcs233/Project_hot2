@@ -192,7 +192,7 @@ def fgPasswd(request):#接受验证码，如果符合则成功修改密码
 
 def getLoginStatus(request):
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         if request.user.is_authenticated():
             return JsonResponse({'errorCode':0,'username':request.user.username})
         else:

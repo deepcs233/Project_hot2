@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #encoding=utf-8
 import json
 import pymongo
@@ -74,7 +73,7 @@ class genJsons(Basic):
                 score+=float(len(re.findall(each,each_news['news_abstract'])))/len(each_news['news_abstract'])*10
                 if score>0.1:
                     num_sim-=1
-                    words[each]['sim'][str(each_news['_id'])]={
+                    words[each]['sim'][str(each_ne                 ws['_id'])]={
                         'title':each_news['news_title'],
                         'urls':each_news['news_url'],
                     }

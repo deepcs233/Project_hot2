@@ -206,25 +206,51 @@ def editUserInfo(request):
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
 
 def getNewsPage(request):
-    if request.method != 'GET':
+    if request.method != 'POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     else:
-        page = request.GET.get('page',1)
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username']
 
-        if page >10:
+        if 'page' not in request.POST or 'type' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+
+        print request.POST
+        page=request.POST.get('page',1)
+        type=request.POST.get('type',u'所有')
+
+
+
+
+        if request.user.is_authenticated():
+            # !!!待钱巨完善
+            with open(file_path + 'readyStream.json', 'r') as f:
+                stream = json.load(f)
+            new = {}
+            new['data'] = stream[30 * (page - 1):30 * page]
+            new['errorCode'] = 0
+
+            return JsonResponse(new)
         else:
 
-            if request.user.is_authenticated():
-                pass
-            else:
+            if type==u'所有':
+                if page > 10:
+                    page = 1
                 with open(file_path+'readyStream.json','r') as f:
                     stream=json.load(f)
                 new={}
                 new['data']=stream[30*(page-1):30*page]
                 new['errorCode']=0
+            else:
+                if page>5:
+                    page=1
+                with open(file_path + 'readyStream_'+type+'.json', 'r') as f:
+                    stream = json.load(f)
+                new = {}
+                new['data'] = stream[30 * (page - 1):30 * page]
+                new['errorCode'] = 0
 
-                return JsonResponse(new)
+            return JsonResponse(new)
 
 
 

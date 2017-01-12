@@ -2,7 +2,6 @@ from django.conf.urls import url,include
 
 from . import views
 
-from api import views
 
 
 urlpatterns = [
@@ -14,11 +13,9 @@ urlpatterns = [
     url(r'alterUsersWord',views.alterUsersWord,name='alterUsersWord'),
     url(r'getUserInfo',views.getUserInfo,name='getUserInfo'),
     url(r'editUserInfo',views.editUserInfo,name='editUserInfo'),
-    url(r'getNewsPage',views.getNewsPage,name='getNesPage'),
+    url(r'getNewsPage',views.getNewsPage,name='getNewsPage'),
     url(r'getGraph',views.getGraph,name='getGraph'),
     url(r'postUserClick',views.postUserClick,name='postUserClick'),
     url(r'search',views.search,name='search'),
-
-
 
 ]

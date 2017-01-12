@@ -140,14 +140,11 @@ data:{
 
 ### active_user
 
-***
-
-# api/
-
-###	getLoginStatus
+### getLoginStatus
 
 ```
 GET
+
 data:{
   errorCode:int
   username:string
@@ -157,10 +154,24 @@ data:{
 
 
 
+
+
+***
+
+# api/
+
+###	
+
+```
+
+```
+
+
+
 ### getNewsPage
 
 ```
-GET
+POST
 data:{
   page:int，
   type:'string' // [u'所有',u'财经',u'教育',u'科技',u'社会',u'时尚',u'时政',u'体育']
