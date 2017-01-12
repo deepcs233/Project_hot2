@@ -1,5 +1,5 @@
 from django.conf.urls  import url
-from accounts import views
+from . import views
 from django.contrib import admin
 
 admin.autodiscover()
@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^captcha',views.captcha,name='captcha'),
     url(r'^fgPasswd',views.fgPasswd,name='fgPasswd'),
     url(r'active=(?P<ciphertext>.+)',views.active_user,name='ciphertext'),
+    url(r'^getLoginStatus',views.getLoginStatus,name='getLoginStatus'),
     url(r'.*',views.login,name='login'),
 
 ]

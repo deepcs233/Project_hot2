@@ -1,7 +1,7 @@
+
 # api/
 ## getUserInfo
 GET:
-
     data {
         "username":"string",
         "email":"string",
@@ -9,18 +9,15 @@ GET:
             'string',
             'string',
             ……
-        ]
-<<<<<<< HEAD
-        "label":[
-          string,
-          ...
-        ]
+        ],
         "word":[
-          string,
-          ...
+          'string',
+          'string'
+        ],
+        "label":[
+          'string',
+          'string'
         ]
-=======
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
     }
 
 ## editUserInfo
@@ -112,11 +109,6 @@ data:{
 }
 ```
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
 ### logout
 
 ```
@@ -129,10 +121,22 @@ data:{
 
 ```
 data:{
-  username:"string",
+  email:"string",
   captcha:int,
+  password:"string:,
 }
 ```
+
+### captcha
+
+```
+data:{
+  email:"string", 
+  or / username:"string" 
+}
+```
+
+
 
 ### active_user
 
@@ -140,12 +144,26 @@ data:{
 
 # api/
 
+###	getLoginStatus
+
+```
+GET
+data:{
+  errorCode:int
+  username:string
+  may errorMsg:string
+}
+```
+
+
+
 ### getNewsPage
 
 ```
 GET
 data:{
-  page:int
+  page:int，
+  type:'string' // [u'所有',u'财经',u'教育',u'科技',u'社会',u'时尚',u'时政',u'体育']
 }
 ```
 
@@ -158,16 +176,20 @@ data:{
     title:string,
     url:string,
     hot:float,
+    <!-- 标签 -->
     label:string,
     keywords:[string,string...],
+    <!-- 摘要 -->
     abstract:string,
-	fromTopic:string,
-	relatedNews:[string,url,string,url...],
+	  fromTopic:string,
   ],
   [
     type:"group",
     keyNews:string,
-    relatedNews:[string,url,string,url...],
+    relatedNews:[{
+        title:'',
+        url:''
+      }],
     hot:float,
     history:[float,float...],
   ]
@@ -185,36 +207,3 @@ GET
 ```
 
 ```
-
-
-
-### postUserClick
-
-```
-POST
-data:{
-  _id=string
-}
-```
-
-
-
-### search
-
-```
-POST
-data:{
-  c:string
-}
-```
-
-
-
-Response:
-
-
-
-
-
-
-

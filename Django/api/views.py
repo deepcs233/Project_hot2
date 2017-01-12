@@ -4,26 +4,19 @@ from django.http import HttpResponseRedirect,JsonResponse
 from django.core.urlresolvers import reverse
 from django.views import generic
 from django.http import HttpResponse
-<<<<<<< HEAD
-from forms import EditUserForm
-=======
-from api.forms import EditUserForm
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 from django.contrib.auth.admin import  User
 from django.contrib.auth.hashers import make_password
-<<<<<<< HEAD
-from models import Word,Word_History,Word_Detail,Topic,News,UsertoTopic,UsertoUrl,UsertoWord
+from .models import UsertoUrl,UsertoTopic,Topic,UsertoWord,Word,News,Word_Detail,Word_History
+from .forms import EditUserForm
 import time
 import json
 import os
 
 file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/static/'
-=======
-from api.models import Word,Word_History,Word_Detail,Topic,News,UsertoTopic,UsertoUrl,UsertoWord
 
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
 
 
 # Create your views here.
@@ -172,15 +165,10 @@ def getUserInfo(request):
     info = {}
     info['username'] = request.user.username
     info['email'] = request.user.email
-<<<<<<< HEAD
+
     info['url'] = []
     info['label']=[]
     info['word']=[]
-=======
-    info['urls'] = []
-    info['topics']=[]
-    info['words']=[]
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
     for each in UsertoUrl.objects.filter(user=request.user):
         info['urls'].append(each.url)
     for each in UsertoTopic.objects.filter(user=request.user):
@@ -215,7 +203,6 @@ def editUserInfo(request):
 
         return JsonResponse({'errorCode': 1, 'errorMsg': u'用户名或密码错误'})
     else:
-<<<<<<< HEAD
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
 
 def getNewsPage(request):
@@ -233,7 +220,11 @@ def getNewsPage(request):
             else:
                 with open(file_path+'readyStream.json','r') as f:
                     stream=json.load(f)
-                return JsonResponse({'errorCode':0,'data':stream[30*(page-1):30*page]})
+                new={}
+                new['data']=stream[30*(page-1):30*page]
+                new['errorCode']=0
+
+                return JsonResponse(new)
 
 
 
@@ -260,7 +251,5 @@ def postUserClick(request):
     if request.method != 'POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     else:
-        pass
-=======
+
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad

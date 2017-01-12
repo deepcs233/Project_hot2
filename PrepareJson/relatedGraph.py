@@ -134,7 +134,10 @@ class genRG(Basic):
             json.dump(self.graph,f)
 
         with open(DJANGO_STATIC_PATH+'graph_index.json','w') as f:
-            json.dump(self.graph,f)
+            new={}
+            new['data']=self.graph
+            new['errorMsg']={'errorCode':0,'errorMsg':'success'}
+            json.dump(new,f)
             
         return self.graph
                 

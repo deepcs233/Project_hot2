@@ -8,7 +8,6 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
-<<<<<<< HEAD
 import sys
 
 from django.core.wsgi import get_wsgi_application
@@ -21,11 +20,4 @@ application = get_wsgi_application()
 
 
 
-=======
 
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hot2.settings")
-
-application = get_wsgi_application()
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad

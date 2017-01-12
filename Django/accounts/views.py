@@ -11,12 +11,13 @@ import re
 import datetime
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
+import json
 # myApp package
-<<<<<<< HEAD
+
 from forms import RegisterForm
-=======
-from accounts.forms import RegisterForm
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
+
+from .forms import RegisterForm
+
 
 
 # Create your views here.
@@ -28,6 +29,9 @@ def register(request):
     template_var = {}
     form = RegisterForm()
     if request.method == "POST":
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST=json.loads(request.body)#['username']
+
         form = RegisterForm(request.POST.copy())
 
         if form.is_valid():
@@ -39,7 +43,7 @@ def register(request):
             user.save()
             try:
                 send_mail(u'点击邮件内链接完成注册！',u'请点击下方的链接，如不能打开请将地址复制到浏览器后再次打开：\n        '+getCipherUrl(user.username),
-                          '954880786@qq.com',[email])
+                          'dailynews@hottestdaily.com',[email])
             except:
                 return JsonResponse(({'errorCode':1,'errorMsg':[u'邮件发送失败，请重试或者更换邮箱']}))
 
@@ -54,36 +58,46 @@ def register(request):
     template_var["form"] = form
 
     return JsonResponse(({'errorCode': 0, 'errorMsg': ""}))
+
 #!forms.py form.errors
 #@ensure_csrf_cookie
 def login(request):
     '''登陆视图'''
+    from django.contrib.auth.hashers import make_password
+    print make_password('123456')
     template_var = {}
     if request.method == 'POST':
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST=json.loads(request.body)#['username']
         username = request.POST.get("username")
         password = request.POST.get("password")
         if _login(request, username, password, template_var):
             return JsonResponse(({'errorCode': 0, 'errorMsg': ""}))
         else:
-            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+            return JsonResponse({'errorCode': 1, 'errorMsg':  template_var['error']})
 
-        template_var.update({"username": username})
+
     return JsonResponse(({'errorCode': 0, 'errorMsg': ""}))
 
 
 def _login(request, username, password, dict_var):
     '''登陆核心方法'''
     ret = False
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            ret = True
-        else:
-            dict_var["error"] = u'用户' + username + u'没有激活'
+
+    if len(User.objects.filter(username=username))==0:
+        dict_var['error']= u'用户' + username + u'不存在'
+        return False
     else:
-        dict_var["error"] = u'用户' + username + u'不存在'
-    return ret
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                ret = True
+            else:
+                dict_var["error"] = u'用户' + username + u'没有激活'
+        else:
+            dict_var["error"] = u'用户名或密码错误'
+        return ret
 
 
 def logout(request):
@@ -95,18 +109,33 @@ def logout(request):
 
 def captcha(request):#获取验证码，并发送至邮箱
     if request.method=='POST':
-        if 'username' not in request.POST:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username']
+
+
+
+        if 'username' in request.POST:
+            username=request.POST['username']
+            user=User.objects.filter(username=username)[0]
+            receiver=user.email
+
+        elif  'email' in request.POST:
+            email=request.POST['email']
+            user=User.objects.filter(email=email)[0]
+            username=user.username
+            receiver=email
+        else:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
-        username=request.POST['username']
-        user=User.objects.filter(username=username)[0]
-        receiver=user.email
-        captcha=buildCaptcha(username)
+
+        captcha = buildCaptcha(username)
+
         try:
-            send_mail(u'来自WebMonitor的验证码', u'   您的验证码为' + captcha,'954880786@qq.com',[receiver])
+            send_mail(u'来自WebMonitor的验证码', u'   您的验证码为' + captcha,'dailynews@hottestdaily.com',[receiver])
             return JsonResponse({'errorCode':0,'errorMsg':""})
         except:
             return JsonResponse(({'errorCode': 1, 'errorMsg': u'邮件发送失败，请重试或者更换邮箱'}))
         #    return JsonResponse({'status': 'ERROR','detail':u'邮件发送失败'})
+
 
 
 
@@ -120,18 +149,22 @@ def active_user(request,ciphertext):
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     user.is_active=True
     user.save()
-    return render(request, "hottest/index")
+    return HttpResponseRedirect("/index.html")
 
 def fgPasswd(request):#接受验证码，如果符合则成功修改密码
     if request.method == 'POST':
         try:
-            if ('username' not in request.POST) or ('captcha' not in request.POST):
+            # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+            request.POST = json.loads(request.body)  # ['username']
+
+            if ('email' not in request.POST) or ('captcha' not in request.POST) or ('password' not in request.POST):
                 return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
-            username=request.POST['username']
+            user=User.objects.filter(email=request.POST['email'])[0]
+            username=user.username
             captcha=buildCaptcha(username)
             if captcha==request.POST['captcha']:
 
-                user=User.objects.filter(username=username)[0]
+
                 passwd=request.POST['password']
                 for each in passwd:
                     if each not in ALLOW_CHAR:
@@ -141,7 +174,7 @@ def fgPasswd(request):#接受验证码，如果符合则成功修改密码
                 if len(passwd)>20:
                     return JsonResponse({'errorCode': 1, 'errorMsg': u'密码长度大于20个字符'})
 
-                user.password=make_password(request.POST['password'])
+                user.password=make_password(passwd)
                 user.save()
 
                 return JsonResponse({'errorCode': 0,'errorMsg':""})
@@ -150,12 +183,22 @@ def fgPasswd(request):#接受验证码，如果符合则成功修改密码
 
             else:
                 return JsonResponse({'errorCode': 1, 'errorMsg':u'验证码输入错误'})
-        except:
-            return HttpResponseForbidden(request)
-    return HttpResponseForbidden(request)
+        except Exception,e:
+            print e
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+    else:
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
 
 
+def getLoginStatus(request):
 
+    if request.method == 'POST':
+        if request.user.is_authenticated():
+            return JsonResponse({'errorCode':0,'username':request.user.username})
+        else:
+            return JsonResponse({'errorCode':0,'username':''})
+    else:
+        return JsonResponse({'errorCode':1,'errorMsg':u'未知错误'})
 
 
 

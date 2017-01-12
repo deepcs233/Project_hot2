@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect,JsonResponse
 # Create your views here.
 
 def index(request):
-    pass
+    return render(request, 'index.html')
 
 def guide(request):
     return JsonResponse({1:2})

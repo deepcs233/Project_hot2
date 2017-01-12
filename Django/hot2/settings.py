@@ -21,18 +21,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
-<<<<<<< HEAD
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hot2.settings")
-=======
 
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hot2.settings")
+
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'v65p7r0#gd3&56we-eus82!ch_0l+0gb%r6rzm(yy$amp#mps$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-<<<<<<< HEAD
+
 ALLOWED_HOSTS = ['hottestdaily.com','hottestdaily.com.','www.hottestdaily.com']
 EMAIL_HOST='smtp.exmail.qq.com'
 EMAIL_HOST_USER='dailynews@hottestdaily.com'
@@ -41,15 +41,7 @@ EMAIL_HOST_PASSWORD='Jun666'
 EMAIL_PORT = 465
 EMAIL_USE_SSL=True
 #EMAIL_USE_TLS = True
-=======
-ALLOWED_HOSTS = []
-EMAIL_HOST='smtp.qq.com'
-EMAIL_HOST_USER='954880786@qq.com'
-EMAIL_HOST_PASSWORD='sfbpvorxchdibfad'
 
-EMAIL_PORT = 587#465
-EMAIL_USE_TLS = True
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
 
 
 # Application definition
@@ -71,7 +63,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+   #  'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -150,17 +142,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
-<<<<<<< HEAD
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATICFILES_DIRS = (
     ("libs", os.path.join(STATIC_ROOT, "libs").replace('\\','/')),
     )
 LOGIN_REDIRECT_URL = '/accounts/'
-=======
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = (
-    ("libs", os.path.join(STATIC_ROOT, "libs").replace('\\','/')),
-    )
-LOGIN_REDIRECT_URL = '/accounts/'
->>>>>>> eee6113b95b6f94b795bbd3ec39a0625545043ad
+
+
