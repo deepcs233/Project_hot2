@@ -31,3 +31,9 @@ MAX_NEWS_LINK_WORD=6
 # django静态文件夹路径
 DJANGO_STATIC_PATH='c:\Users\Administrator\Desktop\project_hot2\Django\static\\'
 
+# 暖色系 用于热词的配色
+WarmColors=['#F41010','#FA5757','#FB2B60','#FF497B','#FF8FBD','#FFA3BA','#F87A7A','#FA9696',\
+            '#FDD95C','#FFF76F','#FFCE6F','#FFC092','#FF8755','#FFAC6F','#FF9F82','#FF6D40']
+
+# 冷色系 用于新闻的配色           
+ColdColors=['#83DBE4','#6CC5FF','#B69FFF','#5D7EE3','#8B8EF3','#BB7DF6','#7395FF','#72AEF8',]

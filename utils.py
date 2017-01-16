@@ -18,10 +18,23 @@ def repeatability(str_1, str_2, scope):  # 判断字符串Jaccard相似度是否
     intersection = len(a & b)
     union = len(a | b)
 
-    if float(intersection) / union > scope[0] and float(intersection) / union < scope[1]:
+    # 改为大于等于和小于等于！
+    if float(intersection) / union >= scope[0] and float(intersection) / union <= scope[1]:
         return 1
     else:
         return 0
+
+def getJaccard(str_1,str_2):
+    list_1 = set(str_1)
+    list_2 = set(str_2)
+
+    a = set(list_1).difference(stopwords)
+    b = set(list_2).difference(stopwords)
+
+    intersection = len(a & b)
+    union = len(a | b)
+
+    return float(intersection) / union
 ##=======
 ###encoding=utf-8
 ##import sys

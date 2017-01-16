@@ -16,13 +16,6 @@ colors = ["#33DAB6", "#4BC270", "#C8FF00", "#CC00FF",
           "#AA66CC", "#9933CC", "#00FFFF", "#99CC00", "#669900",
           "#FFBB33", "#FF8800", "#FF4444", "#CC0000"]
 
-# 暖色系 用于热词的配色
-WarmColors=['#F41010','#FA5757','#FB2B60','#FF497B','#FF8FBD','#FFA3BA','#F87A7A','#FA9696',\
-            '#FDD95C','#FFF76F','#FFCE6F','#FFC092','#FF8755','#FFAC6F','#FF9F82','#FF6D40']
-
-# 冷色系 用于新闻的配色           
-ColdColors=['#83DBE4','#6CC5FF','#B69FFF','#5D7EE3','#8B8EF3','#BB7DF6','#7395FF','#72AEF8',]
-
 with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
     
@@ -85,7 +78,7 @@ class genRG(Basic):
             t = {"sourceID":node_1["_id"],"targetID":node_2["_id"],"size":size}
         self.graph['edges'].append(t)
 
-    def run2(self):
+    def run(self):
         news_data = []
         words_data = []
         start_time, last_time = self.process_time(column_sort='words_time', collection='words')

@@ -75,8 +75,8 @@ class genStreamNews(Basic):
         for i in xrange(len(self.news)):
             #print i,news_count
             t={}
-            df.append(math.e**(self.news[i]['hot']/300-0.9))
-            if (math.e**(self.news[i]['hot']/300-0.9))*random.random()>p_threshold:
+            df.append(math.e**(self.news[i]['hot']/600-0.9))
+            if (math.e**(self.news[i]['hot']/600-0.9))*random.random()>p_threshold:
                 news_count+=1
                 if news_count>141: break
                 t['type']='news'
@@ -123,6 +123,8 @@ class genStreamNews(Basic):
         for each in self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
             sort('hotxcount',pymongo.DESCENDING).limit(2000):
             self.news.append(each)
+
+
                 
         scope=SCOPE_SIMILAR_NEWS
 
@@ -132,9 +134,11 @@ class genStreamNews(Basic):
 
 
         for i in xrange(2000):
-            #print i,news_count
+            #print i,news_count,math.e**(self.news[i]['hot']/600-0.9)
             t={}
-            if (math.e**(self.news[i]['hot']/300-0.9))*random.random()>0.35:
+            
+
+            if (math.e**(self.news[i]['hot']/700-0.9))*random.random()>0.435:
                 news_count+=1
                 if news_count>281: break
                 t['type']='news'
