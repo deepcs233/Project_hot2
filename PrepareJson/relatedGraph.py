@@ -106,7 +106,7 @@ class genRG(Basic):
             news_data.append(each_news)
             x, y = getRandomXY(280, 500)
             self.add_node(label=each_news['news_title'], x=x, y=y,
-                          _id=str(each_news['_id']), size=math.sqrt(each_news['hotxcount']) / 10)
+                          _id=str(each_news['_id']), size=math.sqrt(each_news['hotxcount']) )
             text = each_news["news_title"] + each_news["news_body"] + each_news['news_abstract']
  
             words_list = set(jieba.lcut(text))
@@ -126,7 +126,7 @@ class genRG(Basic):
             if word_quote[1] > 0:
                 x,y=getRandomXY(0+i*6,60+i*6)
                 print word_quote[0],word_quote[1],word_dict[word_quote[0]]
-                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=math.sqrt(word_dict[word_quote[0]]))
+                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=math.sqrt(word_dict[word_quote[0]])*2)
 
         with open('graph_index.json','w') as f:
             json.dump(self.graph,f)
