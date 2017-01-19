@@ -20,6 +20,8 @@ stopwords=set([x.rstrip('\n').decode('utf8') for x in g])
 
 LABEL_CHOSEN=[u'财经',u'教育',u'科技',u'社会',u'时尚',u'时政',u'体育']
 
+
+
 class genStreamNews(Basic):
     '''
     按每两小时一次生成流式新闻
@@ -38,6 +40,15 @@ class genStreamNews(Basic):
         self.newsGroup=[]
         self.newsStream=[]
 
+        # 获取当前新闻最高热度，便于归一
+        # 取最二高的新闻热度作为最高
+        # 取最十低的新闻热度作为最低
+        start_time,last_time=self.process_time(column_sort='news_time',collection='news')
+        self.max_hot=math.sqrt(list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
+            sort('hotxcount',pymongo.DESCENDING).limit(2))[1]['hotxcount'])
+        self.min_hot=math.sqrt(list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
+            sort('hotxcount',1).limit(10))[9]['hotxcount'])
+        
     def getData(self):
         pass
 
@@ -83,7 +94,9 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=self.news[i]['hotxcount']
+                t['hot']=self.processHot(self.news[i]['hotxcount'])
+
+                print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
                 #t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
@@ -145,7 +158,9 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=self.news[i]['hotxcount']
+                t['hot']=self.processHot(self.news[i]['hotxcount'])
+
+                print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
                 #t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
@@ -179,6 +194,18 @@ class genStreamNews(Basic):
         for each_label in LABEL_CHOSEN:
             self.getOneLabel(each_label)
         self.getAllLabel()
+
+    def processHot(self,hot):
+        '''
+        将新闻热度归一为26-100
+        保留一位小数
+        random添加随机性
+        sqrt将热度取根号，使分布尽量均匀
+        '''
+        if (math.sqrt(hot)) < self.max_hot:
+            return round(((math.sqrt(hot)+random.random()-self.min_hot)/(self.max_hot+1-self.min_hot))*74+26,1)
+        else:
+            return round(98+2*random.random(),1)
 
 
 if __name__=='__main__':
