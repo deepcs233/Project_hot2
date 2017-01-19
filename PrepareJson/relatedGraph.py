@@ -106,7 +106,7 @@ class genRG(Basic):
             news_data.append(each_news)
             x, y = getRandomXY(280, 500)
             self.add_node(label=each_news['news_title'], x=x, y=y,
-                          _id=str(each_news['_id']), size=each_news['hot'] / 4)
+                          _id=str(each_news['_id']), size=each_news['hot'] / 10)
             text = each_news["news_title"] + each_news["news_body"] + each_news['news_abstract']
  
             words_list = set(jieba.lcut(text))
