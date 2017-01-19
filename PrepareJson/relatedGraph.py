@@ -98,9 +98,13 @@ class genRG(Basic):
         start_time, last_time = self.process_time(column_sort="news_time", collection="news")
         for each_news in self.db['news'].find(
                 {"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}). \
-                sort('hotxcount', pymongo.DESCENDING).limit(30):
+                sort('hotxcount', pymongo.DESCENDING).limit(50):
+
+            # 随机选取一部分新闻
+            if random.random()<0.5:continue;
+            
             news_data.append(each_news)
-            x, y = getRandomXY(300, 500)
+            x, y = getRandomXY(280, 500)
             self.add_node(label=each_news['news_title'], x=x, y=y,
                           _id=str(each_news['_id']), size=each_news['hot'] / 4)
             text = each_news["news_title"] + each_news["news_body"] + each_news['news_abstract']
@@ -122,7 +126,7 @@ class genRG(Basic):
             if word_quote[1] > 0:
                 x,y=getRandomXY(0+i*6,60+i*6)
                 print word_quote[0],word_quote[1]
-                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=word_dict[word_quote[0]]/1.5)
+                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=word_dict[word_quote[0]]/7.5)
 
         with open('graph_index.json','w') as f:
             json.dump(self.graph,f)
@@ -141,7 +145,7 @@ if __name__=='__main__':
 
     start_time=time.clock()
     g=genRG()
-    h=g.run2()
+    h=g.run()
     end_time=time.clock()
     print 'Time Cost:',end_time
                 
