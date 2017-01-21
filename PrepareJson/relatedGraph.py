@@ -88,7 +88,7 @@ class genRG(Basic):
         word_dict.pop('_id')
         word_dict.pop('words_time')
 
-        word_tuple = sorted(word_dict.iteritems(), key=lambda x: x[1], reverse=True)[0:50]
+        word_tuple = sorted(word_dict.iteritems(), key=lambda x: x[1], reverse=True)[0:30]
 
         for each in word_tuple:
             words_data.append([each[0], 0])  # 第二个数为该词被引用数
@@ -98,10 +98,10 @@ class genRG(Basic):
         start_time, last_time = self.process_time(column_sort="news_time", collection="news")
         for each_news in self.db['news'].find(
                 {"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}). \
-                sort('hotxcount', pymongo.DESCENDING).limit(50):
+                sort('hotxcount', pymongo.DESCENDING).limit(30):
 
             # 随机选取一部分新闻
-            if random.random()<0.5:continue;
+            if random.random()<0.8:continue;
             print each_news['hotxcount']
             news_data.append(each_news)
             x, y = getRandomXY(280, 500)
