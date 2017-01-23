@@ -1,7 +1,7 @@
 #encoding=utf-8
 import time
 
-from  DataProcess import clac_word_freq,clac_news_hot,classify_news,rm_samenews,hot_muti_count
+from DataProcess import clac_word_freq,clac_news_hot,classify_news,rm_samenews,hot_muti_count,cluster_news
 
 from PrepareJson import gen_basic_json,relatedGraph,stream_news
 st=time.time()
@@ -38,7 +38,14 @@ st=time.time()
 e=hot_muti_count.CalcNewsHot()
 e.run()
 
-#--------------------Prepare JSon-------------------------------
+print time.time()-st
+st=time.time()
+
+#255s
+f=cluster_news.ClusterNews()
+f.run()
+
+#--------------------Prepare Json-------------------------------
 
 
 print time.time()-st

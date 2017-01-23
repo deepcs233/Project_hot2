@@ -64,8 +64,8 @@ class genStreamNews(Basic):
         '''
         获取某一分类下的新闻瀑布流
         '''
-        print '='*80
-        print label
+        #print '='*80
+        #print label
         self.news=[]
         self.newsStream=[]
         start_time,last_time=self.process_time(column_sort='news_time',collection='news')
@@ -96,7 +96,7 @@ class genStreamNews(Basic):
                 t['label']=self.news[i]['label_ch']
                 t['hot']=self.processHot(self.news[i]['hotxcount'])
 
-                print t['hot']
+                #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
                 #t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
@@ -118,8 +118,8 @@ class genStreamNews(Basic):
                             break
                 self.newsStream.append(t)
 
-        print len(self.news),news_count
-        print sum(df)/len(self.news)
+        #print len(self.news),news_count
+        #print sum(df)/len(self.news)
         
         with open('readyStream_'+label+'.json','w') as f:
             json.dump(self.newsStream,f)
@@ -160,7 +160,7 @@ class genStreamNews(Basic):
                 t['label']=self.news[i]['label_ch']
                 t['hot']=self.processHot(self.news[i]['hotxcount'])
 
-                print t['hot']
+                #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
                 #t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
