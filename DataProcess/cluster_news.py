@@ -47,7 +47,7 @@ class ClusterNews(Basic):
         union = len(a | b)
         return float(intersection) / union
 
-    def jaccard_avg(self,group,avg_threshold=0.25): #计算一个类内的Jaccard平均值是否小于阈值
+    def jaccard_avg(self,group,avg_threshold=0.20): #计算一个类内的Jaccard平均值是否小于阈值
         length=len(group)
         total_jaccard=[]
         for i in range(length):
@@ -87,46 +87,48 @@ class ClusterNews(Basic):
         cluster_dict['keyNews'] = data[0]['title']
         cluster_dict['relatedNews'] = relatedNews
         cluster_dict['hot'] = hot
+        cluster_dict['label_ch'] = data[0]['label_ch'] 
 
         return cluster_dict
 
     def run(self):
         data=[]
         start_time, last_time = self.process_time(column_sort='news_time', collection='news')
-##        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]}):
-##
-##            news={}
-##            news['title']=each_news['news_title']
-##            news['url']=each_news['news_url']
-##            news['_id']=each_news['_id']
-##            news['flag']=1
-##            data.append(news)
-##
-##        for i in range(len(data)):
-##            #if i%100==0 : print i
-##            cluster_dict = {}
-##            new_group = []
-##            if data[i]['flag']!=1:
-##                continue
-##            for j in range(len(data)):
-##                if data[j]['flag']!=1 or j == i:
-##                    continue
-##                if self.repeatability(data[i]['title'],data[j]['title'],(0.24,0.76)):#SCOPE_SIMILAR_NEWS):
-##                    data[i]['flag']=0
-##                    data[j]['flag']=0
-##                    new_group.append(data[i])
-##                    new_group.append(data[j])
-##            if len(new_group) > 4 and self.jaccard_avg(new_group):
-##                cluster_dict = self.build_dic( new_group )
-##                
-##                # 如果新闻组入选，更新fromTopic
-##                for each_news_dict in new_group:
-##                    self.coll.update_one({"_id":each_news_dict['_id']},{'$set':{'fromTopic':new_group[0]['title']}})
-##                    
-##            if cluster_dict != {}:
-##                #每个聚类保存一次
-##                self.save( cluster_dict )
-##
+        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]}):
+
+            news={}
+            news['title']=each_news['news_title']
+            news['url']=each_news['news_url']
+            news['_id']=each_news['_id']
+            news['label_ch']=each_news['label_ch']
+            news['flag']=1
+            data.append(news)
+
+        for i in range(len(data)):
+            #if i%100==0 : print i
+            cluster_dict = {}
+            new_group = []
+            if data[i]['flag']!=1:
+                continue
+            for j in range(len(data)):
+                if data[j]['flag']!=1 or j == i:
+                    continue
+                if self.repeatability(data[i]['title'],data[j]['title'],(0.24,0.76)):#SCOPE_SIMILAR_NEWS):
+                    data[i]['flag']=0
+                    data[j]['flag']=0
+                    new_group.append(data[i])
+                    new_group.append(data[j])
+            if len(new_group) > 4  and self.jaccard_avg(new_group):
+                cluster_dict = self.build_dic( new_group )
+                
+                # 如果新闻组入选，更新fromTopic
+                for each_news_dict in new_group:
+                    self.coll.update_one({"_id":each_news_dict['_id']},{'$set':{'fromTopic':new_group[0]['title']}})
+                    
+            if cluster_dict != {}:
+                #每个聚类保存一次
+                self.save( cluster_dict )
+
 
         # 将所有新闻的fromTopic补全
         for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]}):

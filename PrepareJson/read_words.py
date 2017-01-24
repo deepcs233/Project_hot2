@@ -2,15 +2,15 @@
 import json
 
 with open('words.json','r') as f:
-    words=json.load(f)
+    words=json.load(f)['data']
 
 for each in words:
-    print each
-    print '----hot:',words[each]['hot']
-    print '----label:',words[each]['label']
-    for pj in words[each]['sim']:
-        print '----smi_news:',words[each]['sim'][pj]['title']
-    print '============'
+
+    print each['hot']
+    #print '----label:',each['label']
+##    for pj in each['sim']:
+##        print '----smi_news:',each['sim'][pj]['title']
+##    print '============'
 ##=======
 ##import json
 ##

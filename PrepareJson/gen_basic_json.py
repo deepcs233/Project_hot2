@@ -7,11 +7,13 @@ import re
 from basic import Basic
 from bson.objectid import ObjectId
 import jieba
+import random
+import math
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
 
 from settings import *
-from utils import repeatability
+from utils import repeatability,normalizeHot
 
 catalogs= [u'财经',u'彩票', u'房产', u'股票', u'家居', u'教育',
                 u'科技',  u'社会',  u'时尚',  u'时政',  u'体育',  u'星座',
@@ -20,6 +22,8 @@ catalogs= [u'财经',u'彩票', u'房产', u'股票', u'家居', u'教育',
 with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
 stopwords=set([x.rstrip('\n').decode('utf8') for x in g])
+
+
 
 class genJsons(Basic):
 
@@ -39,26 +43,34 @@ class genJsons(Basic):
         start_time,last_time=self.process_time(column_sort='words_time',collection='words')
 
         word_dict=self.db['words'].find_one({"$and":[{"words_time":{"$gte":start_time}},{"words_time":{"$lte":last_time}}]})
+        
+        #入选前100个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
+        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:104]
 
-        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[2:102]#入选前100个词语 第一个为Object_id,第二个为words_time 故跳过
+        # 对热度进行归一
+        max_hot=words_sorted[0][1]
+        min_hot=words_sorted[-1][1]
+        print max_hot,min_hot
+        
         for each in words_sorted:
+            print each[1]
             words[each[0]]={
-                'hot':each[1],
-                'history':[each[1]],
+                'hot':round(normalizeHot(each[1],max_hot,min_hot),1),
+                'history':[round(each[1],1)],
                 'sim':{}
             }
 
         #准备历史数据
         for each in words.keys():
             s_time,l_time=start_time,last_time
-            for i in range(14*6):#取前14天的信息，每天的热度取8次，然后以该平均值作为本天热度
+            for i in range(14*6):#取前14天的信息，每天的热度取6次，然后以该平均值作为本天热度
                 s_time-=10800#秒 4*3600
                 l_time-=10800
                 word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": start_time}}, {"words_time": {"$lte": last_time}}]})
                 if word_dict==None:
                     words[each]['history'].append(0)
                 else:
-                    words[each]['history'].append(int(word_dict.get(each[0],0)))
+                    words[each]['history'].append(round(word_dict.get(each[0],0),1))
             words[each]['history'].reverse() #将历史逆序，越新的排在越后
 
 
@@ -274,7 +286,7 @@ class genJsons(Basic):
 if  __name__=='__main__':
 
     f=genJsons()
-    #f.prepare_words()
-    f.prepare_news()
+    f.prepare_words()
+    #f.prepare_news()
     #f.prepare_topics()
 

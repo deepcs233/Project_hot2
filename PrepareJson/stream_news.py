@@ -7,7 +7,7 @@ import random
 import json
 import math
 from basic import Basic
-from utils import repeatability
+from utils import repeatability,normalizeHot
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
 
@@ -88,17 +88,18 @@ class genStreamNews(Basic):
             t={}
             df.append(math.e**(self.news[i]['hot']/600-0.9))
             if (math.e**(self.news[i]['hot']/600-0.9))*random.random()>p_threshold:
+                if news_count>=140: break
                 news_count+=1
-                if news_count>141: break
+                
                 t['type']='news'
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=self.processHot(self.news[i]['hotxcount'])
+                t['hot']=normalizeHot(self.news[i]['hotxcount'])
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
-                #t['fromTopic']=self.news[i]['fromTopic']
+                t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
                 t['keywords']=jieba.analyse.extract_tags(text,3,allowPOS=('n'))
 
@@ -118,15 +119,37 @@ class genStreamNews(Basic):
                             break
                 self.newsStream.append(t)
 
+        # 以下插入10组新闻
+        start_time,last_time=self.process_time(column_sort='cluster_time',collection='groups')
+        for each  in self.db['groups'].find({"$and":\
+                    [{"cluster_time": {"$gte": start_time}},{"cluster_time": {"$lte": last_time}},{'label_ch':label}]})\
+                    .limit(10):
+
+            t={}
+            t['type']='group'
+            t['keyNews']=each['keyNews']
+            # 只取五则相关新闻
+            t['relatedNews']=each['relatedNews'][0:4]
+            t['hot']=each['hot']
+            t['history']=[]
+
+            # 随机插入
+            self.newsStream.insert(int(random.random()*140),t)
+            
         #print len(self.news),news_count
         #print sum(df)/len(self.news)
-        
+
+        # 包裹数据
+        streamJson={}
+        streamJson['errorCode']=0
+        streamJson['data']=self.newsStream
+
         with open('readyStream_'+label+'.json','w') as f:
-            json.dump(self.newsStream,f)
+            json.dump(streamJson,f)
 
         with open(DJANGO_STATIC_PATH+'readyStream_'+label+'.json','w') as f:
 
-            json.dump(self.newsStream,f)
+            json.dump(streamJson,f)
 
     def getAllLabel(self):
         
@@ -152,17 +175,18 @@ class genStreamNews(Basic):
             
 
             if (math.e**(self.news[i]['hot']/700-0.9))*random.random()>0.435:
+                
+                if news_count>=280: break
                 news_count+=1
-                if news_count>281: break
                 t['type']='news'
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=self.processHot(self.news[i]['hotxcount'])
+                t['hot']=normalizeHot(self.news[i]['hotxcount'])
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
-                #t['fromTopic']=self.news[i]['fromTopic']
+                t['fromTopic']=self.news[i]['fromTopic']
                 text=self.news[i]['news_title']+self.news[i]['news_abstract']+self.news[i]['news_body']
                 t['keywords']=jieba.analyse.extract_tags(text,3,allowPOS=('n'))
 
@@ -182,12 +206,34 @@ class genStreamNews(Basic):
                             break
                 self.newsStream.append(t)
 
+        
+        start_time,last_time=self.process_time(column_sort='cluster_time',collection='groups')
+        for each  in self.db['groups'].find({"$and":\
+                    [{"cluster_time": {"$gte": start_time}},{"cluster_time": {"$lte": last_time}}]})\
+                    .limit(20):
+
+            t={}
+            t['type']='group'
+            t['keyNews']=each['keyNews']
+            # 只取五则相关新闻
+            t['relatedNews']=each['relatedNews'][0:4]
+            t['hot']=each['hot']
+            t['history']=[]
+
+            # 随机插入
+            self.newsStream.insert(int(random.random()*280),t)
+
+        # 包裹数据
+        streamJson={}
+        streamJson['errorCode']=0
+        streamJson['data']=self.newsStream
+
         with open('readyStream.json','w') as f:
-            json.dump(self.newsStream,f)
+            json.dump(streamJson,f)
 
         with open(DJANGO_STATIC_PATH+'readyStream.json','w') as f:
 
-            json.dump(self.newsStream,f)
+            json.dump(streamJson,f)
 
     def run(self):
 
