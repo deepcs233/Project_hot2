@@ -102,7 +102,7 @@ class genRG(Basic):
 
             # 随机选取一部分新闻
             if random.random()<0.8:continue;
-            print each_news['hotxcount']
+            #print each_news['hotxcount']
             news_data.append(each_news)
             x, y = getRandomXY(280, 500)
             self.add_node(label=each_news['news_title'], x=x, y=y,
@@ -125,7 +125,7 @@ class genRG(Basic):
 
             if word_quote[1] > 0:
                 x,y=getRandomXY(0+i*6,60+i*6)
-                print word_quote[0],word_quote[1],word_dict[word_quote[0]]
+  
                 self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=math.sqrt(word_dict[word_quote[0]])*3.3)
 
         with open('graph_index.json','w') as f:

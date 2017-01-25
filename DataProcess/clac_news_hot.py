@@ -3,11 +3,11 @@ import pymongo
 import time
 import sys
 import jieba
-from basic import Basic
+
 import math
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
-
+from basic import Basic
 from settings import *
 
 class CalcNewsHot(Basic):
@@ -27,7 +27,7 @@ class CalcNewsHot(Basic):
         self.word_dict = self.db['words'].find_one({"$and": [{'words_time': {"$gte": start_time}}, {'words_time': {"$lte": last_time}}]})
 
         start_time, last_time = self.process_time(column_sort='news_time', collection='news')
-        print self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]}).count()
+    
         for news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]}):
             hot=0
             words=set(jieba.lcut(news['news_title'])) #集合化，去重，重复的只计算一次

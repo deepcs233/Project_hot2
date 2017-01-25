@@ -26,7 +26,7 @@ stopwords=set([x.rstrip('\n').decode('utf8') for x in g])
 
 class newsClassier(Basic):
 
-    def __init__(self,is_last=1,timestamp=None,timetuple=None,collection='news',keywords_file=PROJECT_PATH+'DataProcess//'+'keyword_fc_1.2.pkl',clf_file=PROJECT_PATH+'DataProcess//''clfbest.pkl'):
+    def __init__(self,is_last=1,timestamp=None,timetuple=None,collection='news',keywords_file=PROJECT_PATH+'DataProcess//'+'keyword.pkl',clf_file=PROJECT_PATH+'DataProcess//''clfbest.pkl'):
         '''
         keywords_file 将关键词列表经pickle序列化的文件路径
         clf_file 以pkl格式保存的预测模型,调用接口为predict(X)
@@ -40,10 +40,12 @@ class newsClassier(Basic):
                                       ,timetuple=timetuple,collection=collection)
 
  
-        with open(keywords_file,'r') as f:
+        with open(keywords_file,'rb') as f:
+
+
             self.keywords=pickle.load(f)
 
-        with open(clf_file,'r') as f:
+        with open(clf_file,'rb') as f:
             self.clf=pickle.load(f)
 
 
@@ -165,7 +167,7 @@ class newsClassier(Basic):
             for i in range(len(res)):
                 ans_str=''
                 for j in range(len(res[i])):
-                    print res[i][j]
+                    #print res[i][j]
                     ans_str=ans_str+' | '+num_catalog[res[i][j][0]]
                 ch='Document'+str(i+1)+':'+ans_str
                 res_Cn.append(ch)
@@ -196,7 +198,7 @@ if __name__=='__main__':
 ##    with open('testnews.txt','r') as f:
 ##        news=f.read().decode('gbk')
     
-    cla=newsClassier(keywords_file='keyword_fc_1.2.pkl',clf_file='clfbest.pkl')
+    cla=newsClassier(keywords_file='keyword.pkl',clf_file='clfbest.pkl')
     a=time.time()
     cla.run()
     print time.time()-a

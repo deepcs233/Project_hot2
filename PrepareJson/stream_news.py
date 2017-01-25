@@ -18,9 +18,15 @@ with open(PROJECT_PATH+'stopwords.dat','r') as f:
 
 stopwords=set([x.rstrip('\n').decode('utf8') for x in g])
 
-LABEL_CHOSEN=[u'财经',u'教育',u'科技',u'社会',u'时尚',u'时政',u'体育']
+# 拼音缩写，以防编码错误
+LABEL_CHOSEN=['CJ','JY','KJ','SH','SS','SZ','TY']
 
-
+#分类英文简称-->中文
+abbr_catalog={'CJ':u'财经','CP':u'彩票','FC':u'房产','GP':u'股票','JJ':u'家居',
+              'JY':u'教育','KJ':u'科技','SH':u'社会','SS':u'时尚','SZ':u'时政',
+              'TY':u'体育',
+              'XZ':u'星座',
+              'YX':u'游戏','YL':u'娱乐'}
 
 class genStreamNews(Basic):
     '''
@@ -70,7 +76,7 @@ class genStreamNews(Basic):
         self.newsStream=[]
         start_time,last_time=self.process_time(column_sort='news_time',collection='news')
         for each  in self.db['news'].find({"$and":\
-                    [{"news_time": {"$gte": start_time}},{"news_time": {"$lte": last_time}},{'label_ch':label}]})\
+                    [{"news_time": {"$gte": start_time}},{"news_time": {"$lte": last_time}},{'label_ch':abbr_catalog[label]}]})\
                     .sort('hotxcount',pymongo.DESCENDING).limit(1000):
             
             self.news.append(each)
@@ -95,7 +101,7 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=normalizeHot(self.news[i]['hotxcount'])
+                t['hot']=normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot)
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
@@ -130,7 +136,7 @@ class genStreamNews(Basic):
             t['keyNews']=each['keyNews']
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
-            t['hot']=each['hot']
+            t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
             t['history']=[]
 
             # 随机插入
@@ -182,7 +188,7 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=normalizeHot(self.news[i]['hotxcount'])
+                t['hot']=normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot)
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
@@ -217,7 +223,7 @@ class genStreamNews(Basic):
             t['keyNews']=each['keyNews']
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
-            t['hot']=each['hot']
+            t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
             t['history']=[]
 
             # 随机插入

@@ -39,7 +39,7 @@ class Deduplication(Basic):
     def run(self,search_range=1000,threshold=0.5):
         start_time,last_time=self.process_time()
         
-        print self.process_time()
+
         self.get_data(start_time,last_time)
         total=len(self.data)
         for i in range(total-1):
