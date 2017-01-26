@@ -125,7 +125,10 @@ class genJsons(Basic):
         words={}
         words['errorCode']=0
         words['data']=words_data
-        
+
+        with open(DJANGO_STATIC_PATH+'words.json','w') as f:
+
+            json.dump(words,f)
         with open(JSON_STORE_PATH+'words.json','w') as f:
             json.dump(words,f)
 
@@ -185,6 +188,9 @@ class genJsons(Basic):
         news['data']=news_data
         news['errorCode']=0
         
+        with open(DJANGO_STATIC_PATH+'news.json','w') as f:
+
+            json.dump(news,f)
         with open(JSON_STORE_PATH+'news.json','w') as f:
             json.dump(news,f)
 
@@ -273,6 +279,10 @@ class genJsons(Basic):
             
 
         with open(JSON_STORE_PATH+'topics.json','w') as f:
+            json.dump(topics,f)
+
+        with open(DJANGO_STATIC_PATH+'topics.json','w') as f:
+
             json.dump(topics,f)
 
     def prepare_all(self):

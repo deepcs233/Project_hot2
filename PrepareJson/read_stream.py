@@ -5,9 +5,13 @@ import json
 with open('readyStream.json','r') as f:
     st=json.load(f)['data']
 
+i=0
 for each in st:
     print '='*80
+    print i %30
+    i = i+1
     if each['type']=='news':
+        
         print each['title']
         print each['hot']
         print each['label']

@@ -28,6 +28,7 @@ abbr_catalog={'CJ':u'财经','CP':u'彩票','FC':u'房产','GP':u'股票','JJ':u
               'XZ':u'星座',
               'YX':u'游戏','YL':u'娱乐'}
 
+
 class genStreamNews(Basic):
     '''
     按每两小时一次生成流式新闻
@@ -50,10 +51,10 @@ class genStreamNews(Basic):
         # 取最二高的新闻热度作为最高
         # 取最十低的新闻热度作为最低
         start_time,last_time=self.process_time(column_sort='news_time',collection='news')
-        self.max_hot=math.sqrt(list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
-            sort('hotxcount',pymongo.DESCENDING).limit(2))[1]['hotxcount'])
-        self.min_hot=math.sqrt(list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
-            sort('hotxcount',1).limit(10))[9]['hotxcount'])
+        self.max_hot=list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
+            sort('hotxcount',pymongo.DESCENDING).limit(5))[4]['hotxcount']
+        self.min_hot=list(self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}).\
+            sort('hotxcount',1).limit(1000))[999]['hotxcount']
         
     def getData(self):
         pass
@@ -126,21 +127,35 @@ class genStreamNews(Basic):
                 self.newsStream.append(t)
 
         # 以下插入10组新闻
+        i = 0
         start_time,last_time=self.process_time(column_sort='cluster_time',collection='groups')
-        for each  in self.db['groups'].find({"$and":\
+        
+        for each in self.db['groups'].find({"$and":\
                     [{"cluster_time": {"$gte": start_time}},{"cluster_time": {"$lte": last_time}},{'label_ch':label}]})\
                     .limit(10):
 
             t={}
             t['type']='group'
             t['keyNews']=each['keyNews']
+            
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
             t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
             t['history']=[]
 
-            # 随机插入
-            self.newsStream.insert(int(random.random()*140),t)
+            # 以下是为新闻组选出6个关键词
+            text=''
+            for  each_news in each['relatedNews']:
+                r_news = self.db['news'].find_one({'news_url':each_news['url']})
+                text += r_news['news_body']
+            jieba.analyse.extract_tags(text,6,allowPOS=('n'))
+                
+
+            # 随机插入,但需求每个page（30条）内话题组出现在前20条内，每个page插两个话题组
+            # 因此生成的区间为 [ 30*page_num , 30*(page_num+1)-2 )
+            page_num = i/2
+            self.newsStream.insert(int(random.random()*18)+30*page_num,t)
+            i = i+1
             
         #print len(self.news),news_count
         #print sum(df)/len(self.news)
@@ -176,10 +191,10 @@ class genStreamNews(Basic):
 
 
         for i in xrange(2000):
+            
             #print i,news_count,math.e**(self.news[i]['hot']/600-0.9)
             t={}
             
-
             if (math.e**(self.news[i]['hot']/700-0.9))*random.random()>0.435:
                 
                 if news_count>=280: break
@@ -214,6 +229,7 @@ class genStreamNews(Basic):
 
         
         start_time,last_time=self.process_time(column_sort='cluster_time',collection='groups')
+        i=0
         for each  in self.db['groups'].find({"$and":\
                     [{"cluster_time": {"$gte": start_time}},{"cluster_time": {"$lte": last_time}}]})\
                     .limit(20):
@@ -225,9 +241,19 @@ class genStreamNews(Basic):
             t['relatedNews']=each['relatedNews'][0:4]
             t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
             t['history']=[]
-
-            # 随机插入
-            self.newsStream.insert(int(random.random()*280),t)
+            
+            # 以下是为新闻组选出6个关键词
+            text=''
+            for  each_news in each['relatedNews']:
+                r_news = self.db['news'].find_one({'news_url':each_news['url']})
+                text += r_news['news_body']
+            jieba.analyse.extract_tags(text,6,allowPOS=('n'))
+            
+            # 随机插入,但需求每个page（30条）内话题组出现在前20条内，每个page插两个话题组
+            # 因此生成的区间为 [ 30*page_num , 30*(page_num+1)-2 )
+            page_num = i/2
+            self.newsStream.insert(int(random.random()*18)+30*page_num,t)
+            i = i+1
 
         # 包裹数据
         streamJson={}

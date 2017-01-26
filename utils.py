@@ -48,7 +48,9 @@ def normalizeHot(hot,max_hot,min_hot):
     max_hot=math.sqrt(max_hot)
     min_hot=math.sqrt(min_hot)
     hot=math.sqrt(hot)
-    if (hot) < max_hot:
-        return round(((hot+random.random()-min_hot)/(max_hot+1-min_hot))*74+26,1)
-    else:
+    if hot > max_hot:
         return 100
+    elif hot < min_hot:
+        return 26
+    else:
+        return round(((hot+random.random()-min_hot)/(max_hot+1-min_hot))*74+26,1)

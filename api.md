@@ -34,15 +34,15 @@ GET:
     data:{
       errorCode:int
       may errorMsg:string
-      data:{
-        [
+      data:[
+        {
         "content":"string",
         "hot":int,
-        "label":"string", % 改动，易误解
+        "label":"string",
         "history":[int ,int ...],
-        ]
+        }
         ……
-      }
+      ]
     }
 
 ## getHotNews
@@ -51,16 +51,16 @@ GET:
     data:{
       errorCode:int
       may errorMsg:string
-      data:{
-        [
+      data:[
+        {
           "news_id": "string"
           "content":"string",
-          "url":string, # 新增
-          "label":string, # 新增
+          "url":"string",
+          "label":"string",
           "hot":int,
           "fromTopic":"string",
-          ]
-      }
+        }
+      ]
     }
 
 
@@ -70,21 +70,19 @@ GET:
     data:{
       errorCode:int
       may errorMsg:string
-      data:
-        [
+      data:[
+        {
           "content":"string",
           "hot":int,
-          "relatedNews":[ % 改动
+          "relatedNews":[
           	{
           	"title":string,
           	"url":string
           	},
           	...
           	]
-
-
-        ]
       }
+      ]
     }
 
 ***
@@ -219,7 +217,7 @@ data:{
     type:"news",
     title:string,
     url:string,
-    hot:float,
+    hot:int,
     <!-- 标签 -->
     label:string,
     keywords:[string,string...],
@@ -229,14 +227,15 @@ data:{
     ],
     [
     type:"group",
-    keyNews:string,
+    title:string,
     relatedNews:[{
       title:'',
       url:''
       }],
-      hot:float,
-      history:[float,float...],
-      ]
+    hot:int,
+    history:[int,int...],
+    keywords:[string,...]
+    ]
     }
 }
 ```

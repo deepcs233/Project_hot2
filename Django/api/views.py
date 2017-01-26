@@ -20,6 +20,8 @@ file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/stat
 
 
 # Create your views here.
+catalog_abbr={u'财经':'CJ',u'教育':'JY',u'科技':'KJ',u'社会':'SH',u'时尚':'SS',u'时政':'SZ',
+ u'体育':'TY'}
 
 def getHotWords(request):
     res={}
@@ -244,7 +246,7 @@ def getNewsPage(request):
             else:
                 if page>5:
                     page=1
-                with open(file_path + 'readyStream_'+type+'.json', 'r') as f:
+                with open(file_path + 'readyStream_'+catalog_abbr[type]+'.json', 'r') as f:
                     stream = json.load(f)
                 new = {}
                 new['data'] = stream[30 * (page - 1):30 * page]
@@ -263,14 +265,25 @@ def getGraph(request):
         return JsonResponse({'errorCode':0,'data':graph})
 
 
-def search(request):
+def getSearchGraph(request):
     if request.method!='POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     else:
-        if request.user.is_authenticated():
-            pass
-        else:
-            pass
+        pass
+
+def getSearchNews(request):
+    if request.method!='POST':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+    else:
+        pass
+
+def getHotWords(request):
+    if request.method!='GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+    else:
+        with open(file_path+'words.json','r') as f:
+            words = json.load(f)
+        return    JsonResponse(words)
 
 @login_required
 def postUserClick(request):
@@ -279,3 +292,4 @@ def postUserClick(request):
     else:
 
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+
