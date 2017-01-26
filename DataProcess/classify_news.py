@@ -19,7 +19,7 @@ num_catalog={0:u'财经',1:u'彩票',2:u'房产',3:u'股票',4:u'家居',5:u'教
              6:u'科技',7:u'社会',8:u'时尚',9:u'时政',10:u'体育',11:u'星座',
              12:u'游戏',13:u'娱乐'}
              
-with open('stopwords.dat','r') as f:
+with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
 
 stopwords=set([x.rstrip('\n').decode('utf8') for x in g])

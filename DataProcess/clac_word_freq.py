@@ -12,7 +12,7 @@ sys.path.append('../') # 在路径中添加上级目录，方便导入父级目�
 from settings import *
 
 
-with open('stopwords.dat','r') as f:
+with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
 
 stopwords=set([x.rstrip('\n').decode('utf8') for x in g])

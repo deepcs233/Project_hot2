@@ -33,7 +33,7 @@ SECRET_KEY = 'v65p7r0#gd3&56we-eus82!ch_0l+0gb%r6rzm(yy$amp#mps$'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['hottestdaily.com','hottestdaily.com.','www.hottestdaily.com']
+ALLOWED_HOSTS = ['hottestdaily.com','hottestdaily.com.','www.hottestdaily.com','127.0.0.1']
 EMAIL_HOST='smtp.exmail.qq.com'
 EMAIL_HOST_USER='dailynews@hottestdaily.com'
 EMAIL_HOST_PASSWORD='Jun666'
