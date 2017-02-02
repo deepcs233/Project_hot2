@@ -23,18 +23,7 @@ file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/stat
 catalog_abbr={u'财经':'CJ',u'教育':'JY',u'科技':'KJ',u'社会':'SH',u'时尚':'SS',u'时政':'SZ',
  u'体育':'TY'}
 
-def getHotWords(request):
-    res={}
-    words=Word_Detail.objects.order_by('-hot')[0:100]
-    for each in words:
-        res[each.word.id]={}
-        res[each.word.id]['content']=each.word.content
-        res[each.word.id]['hot']=each.hot
-        res[each.word.id]['fromTopic']=each.fromTopic
-        history=Word_History.objects.filter(word=each.word)[0].history
-        res[each.word.id]['history']=history
-
-    return JsonResponse(res)
+labelabbr= {'politics':'SZ', 'society':'SH', 'finance':'CJ', 'education':'JY', 'technology':'KJ', 'fashion':'SS', 'sports':'TY'}
 
 def getHotNews(request):
     res={}
@@ -213,13 +202,13 @@ def getNewsPage(request):
     else:
         # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
         request.POST = json.loads(request.body)  # ['username']
-
+        print request.POST 
         if 'page' not in request.POST or 'type' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
 
         print request.POST
         page=request.POST.get('page',1)
-        type=request.POST.get('type',u'所有')
+        type=request.POST.get('type','all')
 
 
 
@@ -227,7 +216,7 @@ def getNewsPage(request):
         if request.user.is_authenticated():
             # !!!待钱巨完善
             with open(file_path + 'readyStream.json', 'r') as f:
-                stream = json.load(f)
+                stream = json.load(f)['data']
             new = {}
             new['data'] = stream[30 * (page - 1):30 * page]
             new['errorCode'] = 0
@@ -235,19 +224,19 @@ def getNewsPage(request):
             return JsonResponse(new)
         else:
 
-            if type==u'所有':
+            if type=='all':
                 if page > 10:
                     page = 1
                 with open(file_path+'readyStream.json','r') as f:
-                    stream=json.load(f)
+                    stream=json.load(f)['data']
                 new={}
                 new['data']=stream[30*(page-1):30*page]
                 new['errorCode']=0
             else:
                 if page>5:
                     page=1
-                with open(file_path + 'readyStream_'+catalog_abbr[type]+'.json', 'r') as f:
-                    stream = json.load(f)
+                with open(file_path + 'readyStream_'+labelabbr[type]+'.json', 'r') as f:
+                    stream = json.load(f)['data']
                 new = {}
                 new['data'] = stream[30 * (page - 1):30 * page]
                 new['errorCode'] = 0

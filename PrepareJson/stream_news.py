@@ -29,6 +29,7 @@ abbr_catalog={'CJ':u'财经','CP':u'彩票','FC':u'房产','GP':u'股票','JJ':u
               'YX':u'游戏','YL':u'娱乐'}
 
 
+
 class genStreamNews(Basic):
     '''
     按每两小时一次生成流式新闻
@@ -281,9 +282,9 @@ class genStreamNews(Basic):
         sqrt将热度取根号，使分布尽量均匀
         '''
         if (math.sqrt(hot)) < self.max_hot:
-            return round(((math.sqrt(hot)+random.random()-self.min_hot)/(self.max_hot+1-self.min_hot))*74+26,1)
+            return round(((math.sqrt(hot)+random.random()-self.min_hot)/(self.max_hot+1-self.min_hot))*74+26,0)
         else:
-            return round(98+2*random.random(),1)
+            return round(98+2*random.random(),0)
 
 
 if __name__=='__main__':
