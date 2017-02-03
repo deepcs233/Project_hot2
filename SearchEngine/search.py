@@ -6,6 +6,7 @@ import sys
 import re
 import random
 import math
+import jieba.analyse
 import json
 
 
@@ -30,7 +31,7 @@ def get_related_score(word_list,text):
     for each_word in word_list:
         score += len(re.findall(each_word,text))
     score = float(score)/len(text)
-    score = score/math.log(len(word_list),2)
+    score = score/math.log(len(word_list)+1,2)
 
     return score
         
@@ -50,10 +51,6 @@ class SearchEngine(Basic):
         
     def add_node(self,label,x,y,_id,size):
 
-        #在函数内部完成查重
-        for each in self.graph['nodes']:
-            if each['id']==label or each['label']==label:
-                return
         if label==_id:
             # label 等于　_id 说明是词语,用暖色系
             color=random.choice(WarmColors)
@@ -62,20 +59,22 @@ class SearchEngine(Basic):
         
         # 下方的x*2是为了使生成的图更贴合屏幕
         t = {"color":color,"label":label,"x":x*2,"y":y,"id":_id,"size":size}
-        self.graph["nodes"].append(t)
-
-    def add_edge(self,node_1,node_2,size=1):
+        return t
+    
+    def getRandomXY(self,range1,range2):
         '''
-        node_1 :source node_2:target
-        如果node_1 为字符串，则其为soure的label
+        返回 (x,y) 距中心(500,500) 的距离属于(range1,range2)的随机坐标
         '''
-        
+        x = random.random() * 1000
+        y = random.random() * 1000
+        while(1):
+            if range1<((x-500)**2+(y-500)**2)<range2:
+                break
+            else:
+                x = random.random() * 1000
+                y = random.random() * 1000
 
-        if isinstance(node_1,str) or isinstance(node_1,unicode):
-            t={"sourceID":node_1,"targetID":node_2,"size":size}
-        else:
-            t = {"sourceID":node_1["_id"],"targetID":node_2["_id"],"size":size}
-        self.graph['edges'].append(t)
+        return x,y
         
     def analyse(self,query):
 
@@ -113,8 +112,53 @@ class SearchEngine(Basic):
 
         return keyword,word_list_to_keyword
 
-    def search(self,query):
+    def search_return_list(self,query):
         
+        keyword,word_list=self.analyse(query)
+        print  keyword,word_list
+
+        start_time, last_time = self.process_time(column_sort='news_time', collection='news')
+
+        news_list=[]
+
+        # 取不重复的新闻
+        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}},\
+                                                {'count':{'$gt':0}} ]}).sort('hotxcount',-1).limit(800):
+            text=each_news['news_title']*10+each_news['news_abstract']*5+each_news['news_body']
+
+            related_score=get_related_score(word_list,text)
+
+            if related_score == 0:continue
+            
+            score=related_score*math.log(each_news['hotxcount']+1,10)
+            #print related_score
+            news_list.append([each_news['_id'],score,text])
+            
+
+            
+
+        # 按积分排序
+        #print news_list[0][1]
+        news_list = sorted(news_list,key=lambda x: x[1],reverse=True)[0:10]
+
+        data=[]
+        for each in news_list:
+            ee=self.coll.find_one({'_id':each[0]})
+            t={}
+            t['title']=ee['news_title']
+            t['url']=ee['news_url']
+            t['hot']=int(ee['hotxcount'])
+            t['label']=ee['label_ch']
+            t['abstract']=ee['news_abstract']
+            t['fromTopic']=ee['fromTopic']
+            t['keywords']=jieba.analyse.extract_tags(each[2],3,allowPOS=('n'))
+
+            data.append(t)
+
+        return data
+
+    def search_return_graph(self,query):
+    
         keyword,word_list=self.analyse(query)
 
         start_time, last_time = self.process_time(column_sort='news_time', collection='news')
@@ -132,31 +176,42 @@ class SearchEngine(Basic):
             
             score=related_score*math.log(each_news['hotxcount']+1,10)
             #print related_score
-            news_list.append([each_news['news_title'],
-                              each_news['news_url'],each_news['news_abstract'],score])
+            news_list.append([str(each_news['_id']),score,each_news['hotxcount'],each_news['news_title']])
             
 
             
 
         # 按积分排序
-        print news_list[0][3]
-        news_list = sorted(news_list,key=lambda x: x[3],reverse=True)[0:10]
-        print news_list[0][3]
-        return news_list
-            
+        #print news_list[0][1]
+        news_list = sorted(news_list,key=lambda x: x[1],reverse=True)[0:10]
+
+        data={"nodes":[],"edges":[]}
+
+        # 添加节点
+        data['nodes'].append(self.add_node(keyword,450+100*random.random(),450+100*random.random()\
+                                           ,keyword,100))
+        for each in news_list:
+            x, y = self.getRandomXY(50, 400)
+            data['nodes'].append(self.add_node(each[3],x,y,each[0],each[2]/20))
+
+        # 添加边
+        for each in news_list:
+            t={"sourceID":each[0],"targetID":keyword,"size":1}
+            data['edges'].append(t)
+
+
+
+        return data
+        
 
 if __name__ == '__main__':
 
     ss=SearchEngine()
     time.clock()
-    news_list=ss.search(u'台湾 一中')
+    news_list=ss.search_return_graph(u'中国')
     print 'Time Cost:',time.clock()
-    for each_news in news_list:
-        print each_news[0]
-        print each_news[3]
-        print '='*80
-        
-    
-                 
-            
-            
+##    for each_news in news_list:
+##        print each_news[0]
+##        print each_news[3]
+##        print '='*80
+##        

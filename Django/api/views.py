@@ -15,14 +15,16 @@ import time
 import json
 import os
 
-file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/static/'
+import sys
 
+file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/static/'
 
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/../SearchEngine')
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/../')
+import search
 # Create your views here.
-catalog_abbr={u'财经':'CJ',u'教育':'JY',u'科技':'KJ',u'社会':'SH',u'时尚':'SS',u'时政':'SZ',
- u'体育':'TY'}
 
+se=search.SearchEngine()
 labelabbr= {'politics':'SZ', 'society':'SH', 'finance':'CJ', 'education':'JY', 'technology':'KJ', 'fashion':'SS', 'sports':'TY'}
 
 def getHotNews(request):
@@ -202,26 +204,34 @@ def getNewsPage(request):
     else:
         # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
         request.POST = json.loads(request.body)  # ['username']
-        print request.POST 
+
         if 'page' not in request.POST or 'type' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
 
-        print request.POST
         page=request.POST.get('page',1)
         type=request.POST.get('type','all')
 
-
-
-
         if request.user.is_authenticated():
             # !!!待钱巨完善
-            with open(file_path + 'readyStream.json', 'r') as f:
-                stream = json.load(f)['data']
-            new = {}
-            new['data'] = stream[30 * (page - 1):30 * page]
-            new['errorCode'] = 0
+            if type=='all':
+                if page > 10:
+                    page = 1
+                with open(file_path+'readyStream.json','r') as f:
+                    stream=json.load(f)['data']
+                new={}
+                new['data']=stream[30*(page-1):30*page]
+                new['errorCode']=0
+            else:
+                if page>5:
+                    page=1
+                with open(file_path + 'readyStream_'+labelabbr[type]+'.json', 'r') as f:
+                    stream = json.load(f)['data']
+                new = {}
+                new['data'] = stream[30 * (page - 1):30 * page]
+                new['errorCode'] = 0
 
             return JsonResponse(new)
+
         else:
 
             if type=='all':
@@ -258,13 +268,17 @@ def getSearchGraph(request):
     if request.method!='POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     else:
-        pass
+        request.POST = json.loads(request.body)
+        graph=se.search_return_graph(request.POST['search'])
+        return JsonResponse({'errorCode':0,'data':graph})
 
 def getSearchNews(request):
     if request.method!='POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
     else:
-        pass
+        request.POST = json.loads(request.body)
+        newslist=se.search_return_list(request.POST['search'])
+        return JsonResponse({'errorCode':0,'data':newslist})
 
 def getHotWords(request):
     if request.method!='GET':

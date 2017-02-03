@@ -103,7 +103,7 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot)
+                t['hot']=int(round(normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot),0))
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
@@ -207,7 +207,7 @@ class genStreamNews(Basic):
                 t['title']=self.news[i]['news_title']
                 t['url']=self.news[i]['news_url']
                 t['label']=self.news[i]['label_ch']
-                t['hot']=normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot)
+                t['hot']=int(round(normalizeHot(self.news[i]['hotxcount'],self.max_hot,self.min_hot),0))
 
                 #print t['hot']
                 t['abstract']=self.news[i]['news_abstract']
@@ -243,7 +243,7 @@ class genStreamNews(Basic):
             t['title']=each['keyNews']
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
-            t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
+            t['hot']=int(round(normalizeHot(each['hot'],self.max_hot,self.min_hot),0))
             t['history']=[]
             
             # 以下是为新闻组选出6个关键词

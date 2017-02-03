@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 # Register your models here.
-ALLOW_CHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+ALLOW_CHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@."
 
 
 class RegisterForm(forms.Form):
@@ -30,14 +30,14 @@ class RegisterForm(forms.Form):
         if not users:
             return self.cleaned_data["username"]
         else:
-            raise forms.ValidationError(u"该昵称已经被使用请使用其他的昵称")
+            raise forms.ValidationError(u"该昵称已经被使用")
 
     def clean_email(self):
         '''验证重复email'''
         emails = User.objects.filter(email__iexact=self.cleaned_data["email"]).filter(is_active=True)
         if not emails:
             return self.cleaned_data["email"]
-        raise forms.ValidationError(u"该邮箱已经被使用请使用其他的邮箱")
+        raise forms.ValidationError(u"该邮箱已经被使用")
 
     def clean_password(self):
         if len(self.cleaned_data["password"]) < 6:
