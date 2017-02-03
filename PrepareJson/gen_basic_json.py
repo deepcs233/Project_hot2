@@ -45,7 +45,7 @@ class genJsons(Basic):
         word_dict=self.db['words'].find_one({"$and":[{"words_time":{"$gte":start_time}},{"words_time":{"$lte":last_time}}]})
         
         #入选前100个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
-        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:104]
+        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:54]
 
         # 对热度进行归一
         max_hot=words_sorted[0][1]
@@ -53,7 +53,7 @@ class genJsons(Basic):
         print max_hot,min_hot
         
         for each in words_sorted:
-            print each[1]
+            #print each[1]
             words[each[0]]={
                 'hot':round(normalizeHot(each[1],max_hot,min_hot),1),
                 'history':[round(each[1],1)],

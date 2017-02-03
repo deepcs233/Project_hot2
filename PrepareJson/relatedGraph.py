@@ -92,7 +92,7 @@ class genRG(Basic):
 
         for each in word_tuple:
             words_data.append([each[0], 0])  # 第二个数为该词被引用数
-        print words_data[1]
+
         word_quote_dict = dict(words_data)
 
         start_time, last_time = self.process_time(column_sort="news_time", collection="news")

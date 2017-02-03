@@ -137,7 +137,7 @@ class genStreamNews(Basic):
 
             t={}
             t['type']='group'
-            t['keyNews']=each['keyNews']
+            t['title']=each['keyNews']
             
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
@@ -149,7 +149,10 @@ class genStreamNews(Basic):
             for  each_news in each['relatedNews']:
                 r_news = self.db['news'].find_one({'news_url':each_news['url']})
                 text += r_news['news_body']
-            jieba.analyse.extract_tags(text,6,allowPOS=('n'))
+                
+            keywords=jieba.analyse.extract_tags(text,6,allowPOS=('n'))[0:6]   
+            t['keywords']=[keywords[0:3],keywords[3:6]]
+            
                 
 
             # 随机插入,但需求每个page（30条）内话题组出现在前20条内，每个page插两个话题组
@@ -237,7 +240,7 @@ class genStreamNews(Basic):
 
             t={}
             t['type']='group'
-            t['keyNews']=each['keyNews']
+            t['title']=each['keyNews']
             # 只取五则相关新闻
             t['relatedNews']=each['relatedNews'][0:4]
             t['hot']=normalizeHot(each['hot'],self.max_hot,self.min_hot)
@@ -248,7 +251,9 @@ class genStreamNews(Basic):
             for  each_news in each['relatedNews']:
                 r_news = self.db['news'].find_one({'news_url':each_news['url']})
                 text += r_news['news_body']
-            jieba.analyse.extract_tags(text,6,allowPOS=('n'))
+            keywords=jieba.analyse.extract_tags(text,6,allowPOS=('n'))[0:6]   
+            t['keywords']=[keywords[0:3],keywords[3:6]]
+
             
             # 随机插入,但需求每个page（30条）内话题组出现在前20条内，每个page插两个话题组
             # 因此生成的区间为 [ 30*page_num , 30*(page_num+1)-2 )
@@ -282,9 +287,9 @@ class genStreamNews(Basic):
         sqrt将热度取根号，使分布尽量均匀
         '''
         if (math.sqrt(hot)) < self.max_hot:
-            return round(((math.sqrt(hot)+random.random()-self.min_hot)/(self.max_hot+1-self.min_hot))*74+26,0)
+            return int(((math.sqrt(hot)+random.random()-self.min_hot)/(self.max_hot+1-self.min_hot))*74+26)
         else:
-            return round(98+2*random.random(),0)
+            return int(98+2*random.random())
 
 
 if __name__=='__main__':

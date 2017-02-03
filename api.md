@@ -234,7 +234,10 @@ data:{
       }],
     hot:int,
     history:[int,int...],
-    keywords:[string,...]
+    keywords:[
+      [string,string,string],
+      [string,string,string]
+      ]
     ]
     }
 }

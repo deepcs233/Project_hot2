@@ -12,6 +12,7 @@ import datetime
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 import json
+import platform
 # myApp package
 
 from forms import RegisterForm
@@ -204,9 +205,12 @@ def getLoginStatus(request):
 
 
 def getCipherUrl(username):
-
+    
     cipher=base64.b64encode('webmonitor'+username+'ZZ'+SECRET_KEY)
-    return  'http://127.0.0.1:8000/accounts/active='+cipher
+    if platform.system() == 'Linux':
+        return  'http://www.hottestdaily.com/accounts/active='+cipher
+    if platform.system() == 'Windows':
+        return  'http://127.0.0.1:8000/accounts/active='+cipher
 
 def buildCaptcha(username):
 
