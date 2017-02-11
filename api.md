@@ -1,93 +1,120 @@
 
 # api/
-## getUserInfo
+## getUserInfo //获取用户基本信息（用户名，邮箱，是否接受推送）
 GET:
     data {
         "username":"string",
         "email":"string",
-        "url":[
-            'string',
-            'string',
-            ……
-        ],
-        "word":[
-          'string',
-          'string'
-        ],
-        "label":[
-          'string',
-          'string'
-        ]
+        'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
     }
 
-## editUserInfo
+## editUserame //修改用户名
 POST:
 
-    data:{
-        "username":"string",
-        "password_old":"string",
-        "password_new":"string"
-    }
+    'username': str
 
-## getHotWords
-GET:
-    data:{
-      errorCode:int
-      may errorMsg:string
-      data:[
-        {
-        "content":"string",
-        "hot":int,
-        "label":"string",
-        "history":[int ,int ...],
-        }
-        ……
-      ]
-    }
+## editUserMail //修改用户邮箱
 
-## getHotNews
-GET:
+POST:
 
-    data:{
-      errorCode:int
-      may errorMsg:string
-      data:[
-        {
-          "news_id": "string"
-          "content":"string",
-          "url":"string",
-          "label":"string",
-          "hot":int,
-          "fromTopic":"string",
-        }
-      ]
-    }
+```
+'mail':str
+```
+
+## editUserAcceptPost //修改用户是否接受推送
+
+POST:
+
+```
+'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
+```
 
 
-## getHotTopics
+
+## getWatchList // 返回关注的词语、标签列表
+
 GET:
 
-    data:{
-      errorCode:int
-      may errorMsg:string
-      data:[
-        {
-          "content":"string",
-          "hot":int,
-          "relatedNews":[
-          	{
-          	"title":string,
-          	"url":string
-          	},
-          	...
-          	]
-      }
-      ]
-    }
+```
+errorCode:int
+may errorMsg:string
+data:[
+	word1,word2,word3 ...
+]
+```
 
-***
+## addWatchTag // 增加关注内容
+
+POST:
+
+```
+data: Tag
+```
+
+## addWatchUrl // 增加订阅网站
+
+POST:
+
+```
+data:url
+```
+
+## delWatchUrl //删除订阅网站
+
+POST:
+
+```
+data:url
+```
+
+## getWatchUrl //返回订阅网站列表
+
+GET:
+
+```
+data:{
+  errorCode:int
+  may errorMsg:string
+  data:[
+    url1,url2...
+  ]
+  }
+```
 
 
+
+## getWatchThing   //返回订阅内容
+
+GET:
+
+```
+data:{
+  errorCode:int
+  may errorMsg:string
+  data:[
+    webTitle //'人民网' :[
+		{
+          date:'xx-xx',
+          time:'xx:xx',
+          changeList:[
+            str1,str2 ...
+          ]  
+		},
+		
+		{ // 一共有5个字典，除第一个以外无’time‘字段
+          date:'xx-xx', 
+          changeList:[
+            str1,str2 ...
+          ]  
+		}		
+    ]
+  ]
+  }
+```
+
+
+
+## 
 
 # accounts/
 
@@ -234,10 +261,7 @@ data:{
       }],
     hot:int,
     history:[int,int...],
-    keywords:[
-      [string,string,string],
-      [string,string,string]
-      ]
+    keywords:[string,...]
     ]
     }
 }

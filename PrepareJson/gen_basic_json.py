@@ -74,41 +74,41 @@ class genJsons(Basic):
             words[each]['history'].reverse() #将历史逆序，越新的排在越后
 
 
-        #准备与该词语相似的新闻
-        start_time, last_time = self.process_time(column_sort='news_time', collection='news')
-        for each in words.keys():
-            num_sim=NUM_SIMILAR_WORDS2NEWS
-            for each_news in self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}):
-                score=0 #评分
-                if each in each_news['news_title']:
-
-                    score+=(1.0/len(each_news['news_title']))*3
-                score+=float(len(re.findall(each,each_news['news_abstract'])))/len(each_news['news_abstract'])*10
-                if score>0.1:
-                    num_sim-=1
-                    words[each]['sim'][str(each_news['_id'])]={
-                        'title':each_news['news_title'],
-                        'urls':each_news['news_url'],
-                    }
-                if num_sim<=0:
-                    break
-
-        #准备该词语的所属类
-        for each in words.keys():
-            labels=[]#用于存放与该词语相关新闻的类别,目前将会填充3个
-            news_ids=words[each]['sim'].keys()
-            for each_id in news_ids:
-                news_found=self.db['news'].find_one({'_id':ObjectId(each_id)}) #ObjectId 将字符串形式的id转换为Mongodb形式的id以查找
-                labels.append(news_found['label_ch'])
-
-            if len(labels)>0:
-                t_dict={}
-                for label in labels:
-                    t_dict.setdefault(label,0)
-                    t_dict[label]+=1
-                words[each]['label']=sorted(t_dict.iteritems(),key=lambda x: x[1],reverse=True)[0][0]
-            else:
-                words[each]['label']=u'暂无'
+##        #准备与该词语相似的新闻
+##        start_time, last_time = self.process_time(column_sort='news_time', collection='news')
+##        for each in words.keys():
+##            num_sim=NUM_SIMILAR_WORDS2NEWS
+##            for each_news in self.db['news'].find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}):
+##                score=0 #评分
+##                if each in each_news['news_title']:
+##
+##                    score+=(1.0/len(each_news['news_title']))*3
+##                score+=float(len(re.findall(each,each_news['news_abstract'])))/len(each_news['news_abstract'])*10
+##                if score>0.1:
+##                    num_sim-=1
+##                    words[each]['sim'][str(each_news['_id'])]={
+##                        'title':each_news['news_title'],
+##                        'urls':each_news['news_url'],
+##                    }
+##                if num_sim<=0:
+##                    break
+##
+##        #准备该词语的所属类
+##        for each in words.keys():
+##            labels=[]#用于存放与该词语相关新闻的类别,目前将会填充3个
+##            news_ids=words[each]['sim'].keys()
+##            for each_id in news_ids:
+##                news_found=self.db['news'].find_one({'_id':ObjectId(each_id)}) #ObjectId 将字符串形式的id转换为Mongodb形式的id以查找
+##                labels.append(news_found['label_ch'])
+##
+##            if len(labels)>0:
+##                t_dict={}
+##                for label in labels:
+##                    t_dict.setdefault(label,0)
+##                    t_dict[label]+=1
+##                words[each]['label']=sorted(t_dict.iteritems(),key=lambda x: x[1],reverse=True)[0][0]
+##            else:
+##                words[each]['label']=u'暂无'
                 
         # 以下部分将旧格式的words.josn转化        
         words_data=[]
@@ -118,7 +118,7 @@ class genJsons(Basic):
             t={}
             t['content']=content
             t['hot']=int(each_word_dict['hot'])
-            t['label']=each_word_dict['label']
+##            t['label']=each_word_dict['label']
             t['history']=each_word_dict['history']
             words_data.append(t)
 
