@@ -1,11 +1,9 @@
 # coding=utf-8
 # django package
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseForbidden
-from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.core.urlresolvers import reverse
 import base64
 import re
 import datetime
@@ -13,11 +11,10 @@ from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 import json
 import platform
-# myApp package
-
+from .models import UserPostInfo,UserWatchTag
 from forms import RegisterForm
 
-from .forms import RegisterForm
+
 
 
 
@@ -41,6 +38,7 @@ def register(request):
             password = form.cleaned_data["password"]
             user = User.objects.create_user(username, email, password)
             user.is_active = False
+            user.first_name = email
             user.save()
             try:
                 send_mail(u'点击邮件内链接完成注册！',u'请点击下方的链接，如不能打开请将地址复制到浏览器后再次打开：\n        '+getCipherUrl(user.username),
@@ -201,6 +199,142 @@ def getLoginStatus(request):
     else:
         return JsonResponse({'errorCode':1,'errorMsg':u'未知错误'})
 
+@login_required
+def getUserInfo(request):
+    if request.method == 'POST':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else :
+        data = { }
+        t = UserPostInfo.objects.filter(user = request.user)[0]
+        data['errorCode'] = 0
+        data['email'] = t.email
+        data['acceptPost'] = t.acceptPost
+        data['username'] = User.objects.filter(user = request.user)[0].username
+        return JsonResponse(data)
+
+@login_required
+def getUsername(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+        user = User.objects.filter(user = request.user)[0]
+        if 'username' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+        username = request.POST.get('username')
+
+        if len(username) < 3 or len(username) > 20:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'用户名长度需要在3-20字符内'})
+
+        for char in username:
+            if char not in ALLOW_CHAR:
+                return JsonResponse({'errorCode': 1, 'errorMsg': u'用户名中出现了非法字符'})
+
+        if  username == (User.objects.filter(user = request.user)[0]).username:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原用户名相同'})
+
+        if len(User.objects.filter(username = username)) > 0:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名已存在'})
+
+        user.username = username
+        user.save()
+        return JsonResponse({'errorCode': 0,})
+
+@login_required
+def editUserMail(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+
+
+        if 'email' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+        email = request.POST.get('email')
+        if  email == (UserPostInfo.objects.filter(user = request.user)[0]).email:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原用户名相同'})
+
+        user = UserPostInfo.objects.filter(user = request.user)[0]
+        user.email = email
+        user.save()
+        return JsonResponse({'errorCode': 0,})
+
+@login_required
+def editUserAcceptPost(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+
+        if 'acceptPost' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+
+        acceptPost = request.POST.get('acceptPost')
+        if acceptPost == 1 or acceptPost == 0:
+            user = UserPostInfo.objects.filter(user = request.user)[0]
+            user.acceptPost = acceptPost
+            user.save()
+        else:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+
+@login_required
+def addWatchTag(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+
+        if 'data' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+        tag = request.POST['data']
+
+        if len(tag) > 6 or len(tag) < 2 :
+            return  JsonResponse({'errorCode': 1, 'errorMsg': u'词语长度需在2-4字之间'})
+
+        if len(UserWatchTag.objects.filter(user = request.user , word = tag)) > 0:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'用户已添加过此词语'})
+
+        new = UserWatchTag(user = request.user, word = tag)
+        new.save()
+        return JsonResponse({'errorCode': 0,})
+
+@login_required
+def getWatchList(request):
+    if request.method != 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        t = {}
+        data = []
+        for each in UserWatchTag.objects.filter(user = request.user):
+            data.append(each.word)
+        t['errorCode'] = 0
+        t['data'] = data
+
+        return JsonResponse(t)
+
+@login_required
+def delWatchTag(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+
+        if 'data' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+        tag = request.POST['data']
+
+        tt = UserWatchTag.objects.filter(user = request.user,word = tag)
+        if len(tt) > 0:
+            tt.delete()
+            return JsonResponse({'errorCode': 0,})
+        else:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户没有关注此词语'})
+
 
 
 
@@ -229,3 +363,4 @@ def buildCaptcha(username):
         n = '0' + n
 
     return n
+

@@ -18,7 +18,7 @@ POST:
 POST:
 
 ```
-'mail':str
+'email':str
 ```
 
 ## editUserAcceptPost //修改用户是否接受推送
