@@ -1,57 +1,8 @@
-
-# api/
-## getUserInfo //获取用户基本信息（用户名，邮箱，是否接受推送）
-GET:
-    data {
-        "username":"string",
-        "email":"string",
-        'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
-    }
-
-## editUserame //修改用户名
-POST:
-
-    'username': str
-
-## editUserMail //修改用户邮箱
-
-POST:
-
-```
-'email':str
-```
-
-## editUserAcceptPost //修改用户是否接受推送
-
-POST:
-
-```
-'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
-```
+# monitor/
 
 
 
-## getWatchList // 返回关注的词语、标签列表
-
-GET:
-
-```
-errorCode:int
-may errorMsg:string
-data:[
-	word1,word2,word3 ...
-]
-```
-
-## addWatchTag // 增加关注内容
-
-POST:
-
-```
-data: Tag
-```
-
-## addWatchUrl // 增加订阅网站
+### addWatchUrl // 增加订阅网站
 
 POST:
 
@@ -59,7 +10,7 @@ POST:
 data:url
 ```
 
-## delWatchUrl //删除订阅网站
+### delWatchUrl //删除订阅网站
 
 POST:
 
@@ -67,7 +18,7 @@ POST:
 data:url
 ```
 
-## getWatchUrl //返回订阅网站列表
+### getWatchUrl //返回订阅网站列表
 
 GET:
 
@@ -83,7 +34,7 @@ data:{
 
 
 
-## getWatchThing   //返回订阅内容
+### getWatchThing   //返回订阅内容
 
 GET:
 
@@ -117,6 +68,8 @@ data:{
 ## 
 
 # accounts/
+
+
 
 ###	getLoginStatus
 
@@ -214,7 +167,85 @@ data: {
 
 ### active_user
 
+
+
+###  getUserInfo //获取用户基本信息（用户名，邮箱，是否接受推送）
+
+GET:
+
+```
+data {
+	errorCode:int
+	may errorMsg:string
+    "username":"string",
+    "email":"string",
+    'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
+}
+```
+
+### editUsername //修改用户名
+
+POST:
+
+
+
+```
+'username': str
+```
+
+### editUserMail //修改用户推送邮箱
+
+POST:
+
+```
+'email':str
+```
+
+### editUserAcceptPost //修改用户是否接受推送
+
+POST:
+
+```
+'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
+```
+
+
+
+### getWatchList // 返回关注的词语、标签列表
+
+GET:
+
+```
+errorCode:int
+may errorMsg:string
+data:[
+	word1,word2,word3 ...
+]
+```
+
+### addWatchTag // 增加关注内容
+
+POST:
+
+```
+data: Tag
+```
+
+### delWatchTag // 删除关注内容
+
+POST:
+
+```
+data : Tag
+```
+
+
+
 ***
+
+
+
+
 
 # api/
 
@@ -351,3 +382,35 @@ data: {
   ]
 }
 ```
+
+
+
+
+
+### 日报数据格式：
+
+```
+data :{
+  'time': {
+    day:'str', // 星期几
+    month:'str', // 月
+    date:'str' // 日
+  }
+  'yaowen':[
+    {
+    title : str,
+    color : str,
+    url : str}
+    ,
+
+  ]
+  'xihuan':{
+    {
+      title : str,
+      color : str,
+      url : str
+    }
+  }
+}
+```
+

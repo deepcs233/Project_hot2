@@ -95,7 +95,7 @@ class ClusterNews(Basic):
         data=[]
         start_time, last_time = self.process_time(column_sort='news_time', collection='news')
         for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}}]})\
-            .sort('hotxcount':-1).limit(2000):
+            .sort('hotxcount',-1).limit(2000):
 
             news={}
             news['title']=each_news['news_title']

@@ -38,8 +38,11 @@ def register(request):
             password = form.cleaned_data["password"]
             user = User.objects.create_user(username, email, password)
             user.is_active = False
-            user.first_name = email
             user.save()
+
+            newone = UserPostInfo(user=user, email=email, acceptPost= 0)
+            newone.save()
+
             try:
                 send_mail(u'点击邮件内链接完成注册！',u'请点击下方的链接，如不能打开请将地址复制到浏览器后再次打开：\n        '+getCipherUrl(user.username),
                           'dailynews@hottestdaily.com',[email])
@@ -241,6 +244,33 @@ def getUsername(request):
         user.save()
         return JsonResponse({'errorCode': 0,})
 
+    
+@login_required
+def editUsername(request):
+    if request.method == 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+    else:
+        # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
+        request.POST = json.loads(request.body)  # ['username'
+
+        if 'username' not in request.POST:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
+        username = request.POST.get('username')
+        
+        if (User.objects.filter(user = request.user)[0]).username == username:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原用户名相同'})
+
+        if len(User.objects.filter(username = username)) > 0:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名已被使用'})
+
+        user = User.objects.filter(user = request.user)[0]
+
+        user.username = username
+
+        user.save()
+
+        return JsonResponse({'errorCode': 0,})
+    
 @login_required
 def editUserMail(request):
     if request.method == 'GET':
@@ -253,8 +283,10 @@ def editUserMail(request):
         if 'email' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
         email = request.POST.get('email')
+
+
         if  email == (UserPostInfo.objects.filter(user = request.user)[0]).email:
-            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原用户名相同'})
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原邮箱相同'})
 
         user = UserPostInfo.objects.filter(user = request.user)[0]
         user.email = email

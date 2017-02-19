@@ -62,10 +62,11 @@ class genJsons(Basic):
 
         #准备历史数据
         for each in words.keys():
-            s_time,l_time=start_time,last_time
-            for i in range(14*6):#取前14天的信息，每天的热度取6次，然后以该平均值作为本天热度
-                s_time-=10800#秒 4*3600
-                l_time-=10800
+            # 扩大选择范围，增强鲁棒性
+            s_time,l_time = start_time-3600,last_time+3600
+            for i in range(10):#取前10天的信息，每天的热度取一次
+                s_time -= 86400#秒 24*3600
+                l_time -= 86400
                 word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": start_time}}, {"words_time": {"$lte": last_time}}]})
                 if word_dict==None:
                     words[each]['history'].append(0)

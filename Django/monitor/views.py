@@ -1,3 +1,4 @@
+#encoding=utf-8
 from django.shortcuts import render
 
 # Create your views here.
@@ -64,3 +65,7 @@ def getWatchUrl(request):
             data.append(each.url)
 
         return JsonResponse(t)
+
+@login_required
+def getWatchThing(request):
+    pass

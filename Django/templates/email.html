@@ -1,0 +1,98 @@
+{% load staticfiles %}
+<table border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto; padding: 6px 12px 16px 8px; width: 350px; background-color: rgba(246,246,246,0.65)">
+	<tbody>
+		<tr>
+			<td>
+				<span style="font-size: 13px; color:rgba(138,138,138,0.94); letter-spacing:-0.32px;">
+					{{ time.day }} {{ time.month }}月{{ time.date }}日
+				</span>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table border="0" cellpadding="0" align="center" cellspacing="0" style="width: 100%">
+					<tbody>
+						<tr>
+							<td>
+								<p style="margin:0 0 0 0;font-size:36px; color:rgba(21,21,21,0.94); letter-spacing:-0.87px;">
+									今日要闻：
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<table border="0" cellpadding="0" align="center" cellspacing="0" style="width: 100%">
+					<tbody>
+						{% for news in yaowen %}
+						<tr>
+							<td style="padding-top: 16px;">
+								<a href="{{ news.url }}" target="_blank" style="text-decoration:none;">
+									<span style="width:17px; height:17px; margin-top:5px; float:right; background-color:#{{ news.color }}; border-radius:100%;">
+										
+									</span>
+									<span style="font-size:17px; color:rgba(19,19,19,0.94); letter-spacing:-0.41px; line-height:25px;">
+										{{ news.title }}
+									</span>
+								</a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table border="0" cellpadding="0" align="center" cellspacing="0" style="width: 100%; margin-top:23px;">
+					<tbody>
+						<tr>
+							<td style="padding-bottom:16px">
+								<p style="margin:0 0 0 0;font-size:36px; color:rgba(21,21,21,0.94); letter-spacing:-0.87px;">
+									为您推荐：
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				{% if xihuan %}
+				<table border="0" cellpadding="0" align="center" cellspacing="0" style="width: 100%">
+					<tbody>
+						{% for news in xihuan %}
+						<tr>
+							<td style="padding-top: 16px;">
+								<a href="{{ news.url }}" target="_blank" style="text-decoration:none;">
+									<span style="width:17px; height:17px; margin-top:5px; float:right; background-color:#{{ news.color }}; border-radius:100%;">
+										
+									</span>
+									<span style="font-size:17px; color:rgba(19,19,19,0.94); letter-spacing:-0.41px; line-height:25px;">
+										{{ news.title }}
+									</span>
+								</a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% else %}
+				<table border="0" cellpadding="0" align="center" cellspacing="0" style="width: 100%;">
+					<tbody>
+						<tr>
+							<td style="padding-bottom:16px">
+								<p style="margin:0 0 0 0;font-size:17px;color:rgba(154,154,154,0.94);letter-spacing:-0.41px;line-height:25px;">还没有选择推送喜好？
+								</p>
+							</td>
+						</tr>
+						<tr height="40">
+							<td height="40" width="330" style="background:#81b0fc;border-radius:5px;font-size: 17px;line-height: 40px;color: rgba(255,255,255,0.94);text-align: center;white-space: nowrap;overflow: hidden;">
+								<a href="http://www.hottestdaily.com" target="_blank" style="display:block;height:40px;width:330px;text-decoration:none;background:#81b0fc;border-radius:5px;font-size: 17px;line-height: 40px;color: rgba(255,255,255,0.94);text-align: center;white-space: nowrap;overflow: hidden;">
+										添加喜欢的选项
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				{% endif %}
+			</td>
+		</tr>
+	</tbody>
+</table>
