@@ -8,6 +8,9 @@ import numpy as np
 import math
 import pymongo
 import sys
+import pandas
+from pandas import DataFrame
+
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
 
@@ -18,7 +21,22 @@ from basic import Basic
 num_catalog={0:u'财经',1:u'彩票',2:u'房产',3:u'股票',4:u'家居',5:u'教育',
              6:u'科技',7:u'社会',8:u'时尚',9:u'时政',10:u'体育',11:u'星座',
              12:u'游戏',13:u'娱乐'}
-             
+
+classifyInUrl = [['money', 'biz','finance', ],
+                ['caipiao', 'lottery', 'cai'],
+                ['house',],
+                ['stock', 'fund',],
+                ['house', 'jiaju '],
+                ['edu', 'gaokao'],
+                ['tech', 'it'],
+                ['shehui', 'society'],
+                ['fashion', 'style', 'beauty', 'luxury'],
+                ['world',],
+                ['sports',],
+                ['astro', ],
+                ['play', 'games'],
+                ['ent',' gossip',' film',' tv',' zongyi']]
+
 with open(PROJECT_PATH+'stopwords.dat','r') as f:
     g=f.readlines()
 
@@ -104,13 +122,37 @@ class newsClassier(Basic):
                 new_vec[t]=freq
         return new_vec
         
-    def predict(self,docu,mutilabel=0,threshold=0):
+    def predict(self,news_url,docu,mutilabel=0,threshold=0):
        
         if isinstance(docu,list) or isinstance(docu,tuple):
             self.docuIsList=1
         else:
             self.docuIsList=0
 
+        # 从URL中辨识一些分类信息
+        #财经：money, biz, finance, 
+        #彩票：caipiao, lottery, cai
+        #房产：house,
+        #股票：stock, fund,
+        #家居：house, jiaju 
+        #教育：edu, gaokao
+        #科技：tech, it
+        #社会：shehui, society
+        #时尚：fashion, style, beauty, luxury
+        #时政：world,
+        #体育：sports,
+        #星座：astro, 
+        #游戏：play, games
+        #娱乐：ent, gossip, film, tv, zongyi
+
+##        for i in xrange(14):
+##            for each in classifyInUrl[i]:
+##                if each in news_url:
+##                    res = i
+##                    word_dict=self.clac_freq(self.documents)
+##            
+##                    vec = self.freq2vec(word_dict)
+##                    return [res], vec
 
         self.documents=docu
         X_test=[]
@@ -151,7 +193,7 @@ class newsClassier(Basic):
                 print chenfen
         else:
             res=self.clf.predict(X_test)
-        return res
+        return res, vec
 
     def predict_Cn(self,docu,mutilabel=0,threshold=0):
         '''
@@ -174,8 +216,11 @@ class newsClassier(Basic):
         return res_Cn
 
     def run(self):
+        
+        news2words = []
         #搜索新闻的时间区间
         start_time,last_time=self.process_time(column_sort="news_time")
+        print start_time,last_time
         for each in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},\
                                                {"news_time":{"$lte":last_time}}]}
 ):
@@ -186,11 +231,14 @@ class newsClassier(Basic):
 
             news=news_body+news_abstract+news_title
             
-            res=int(self.predict(news)[0]) #numpy.int64->int
+            res,vec=self.predict(news_url,news)
+            res = int(res[0])#numpy.int64->int
+ #           news2words.append(vec)
 
-            self.coll.update_one({"_id":each['_id']},{'$set':{'label':res,'label_ch':num_catalog[res]}})
+            pself.coll.update_one({"_id":each['_id']},{'$set':{'label':res,'label_ch':num_catalog[res]}})
         
-        
+#       df = DataFrame(news2words)
+#        df.to_csv(PROJECT_PATH+'news2words.csv')
         
         
 if __name__=='__main__':

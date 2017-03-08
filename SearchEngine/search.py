@@ -49,7 +49,7 @@ class SearchEngine(Basic):
                                       timetuple=timetuple,collection=collection)
         self.graph={'nodes':[],'edges':[]}
         
-    def add_node(self,label,x,y,_id,size):
+    def add_node(self,label,x,y,_id,size,url):
 
         if label==_id:
             # label 等于　_id 说明是词语,用暖色系
@@ -58,7 +58,7 @@ class SearchEngine(Basic):
             color=random.choice(ColdColors)
         
         # 下方的x*2是为了使生成的图更贴合屏幕
-        t = {"color":color,"label":label,"x":x*2,"y":y,"id":_id,"size":size}
+        t = {"color":color,"label":label,"x":x*2,"y":y,"id":_id,"size":size,'url':url}
         return t
     
     def getRandomXY(self,range1,range2):
@@ -122,7 +122,7 @@ class SearchEngine(Basic):
         news_list=[]
 
         # 取不重复的新闻
-        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}},\
+        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time - 3600}},{"news_time":{"$lte":last_time}},\
                                                 {'count':{'$gt':0}} ]}).sort('hotxcount',-1).limit(800):
             text=each_news['news_title']*10+each_news['news_abstract']*5+each_news['news_body']
 
@@ -166,7 +166,7 @@ class SearchEngine(Basic):
         news_list=[]
 
         # 取不重复的新闻
-        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},{"news_time":{"$lte":last_time}},\
+        for each_news in self.coll.find({"$and":[{"news_time":{"$gte":start_time - 3600}},{"news_time":{"$lte":last_time}},\
                                                 {'count':{'$gt':0}} ]}).sort('hotxcount',-1).limit(800):
             text=each_news['news_title']*10+each_news['news_abstract']*5+each_news['news_body']
 
@@ -189,10 +189,12 @@ class SearchEngine(Basic):
 
         # 添加节点
         data['nodes'].append(self.add_node(keyword,450+100*random.random(),450+100*random.random()\
-                                           ,keyword,100))
+                                           ,keyword,100,url=''))
         for each in news_list:
+
+            
             x, y = self.getRandomXY(50, 400)
-            data['nodes'].append(self.add_node(each[3],x,y,each[0],each[2]/20))
+            data['nodes'].append(self.add_node(each[3],x,y,each[0],each[2]/20,each[1]))
 
         # 添加边
         for each in news_list:
@@ -208,7 +210,7 @@ if __name__ == '__main__':
 
     ss=SearchEngine()
     time.clock()
-    news_list=ss.search_return_graph(u'中国')
+    news_list=ss.search_return_list(u'中国')
     print 'Time Cost:',time.clock()
 ##    for each_news in news_list:
 ##        print each_news[0]

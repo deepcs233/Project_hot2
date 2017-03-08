@@ -1,7 +1,8 @@
 #encoding=utf-8
 import time
 
-from DataProcess import clac_word_freq,clac_news_hot,classify_news,rm_samenews,hot_muti_count,cluster_news
+from DataProcess import clac_word_freq,clac_news_hot,classify_news,rm_samenews,hot_muti_count,cluster_news,\
+     removeHistoryNews
 
 from PrepareJson import gen_basic_json,relatedGraph,stream_news
 st=time.time()
@@ -45,6 +46,9 @@ st=time.time()
 f=cluster_news.ClusterNews()
 f.run()
 
+f = removeHistoryNews.RemoveNews()
+f.run()
+#
 #--------------------Prepare Json-------------------------------
 
 
@@ -84,5 +88,7 @@ h.run()
 
 print 'stream_news:',time.time()-st
 st=time.time()
+
+
 
 

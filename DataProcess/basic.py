@@ -33,7 +33,7 @@ class Basic(object):
         if self.is_last:
             cursor=self.db[collection].find().sort(column_sort,pymongo.DESCENDING)
             last_time=cursor[0][column_sort]
-            start_time=last_time-2400 #取最近1800s的区间
+            start_time=last_time-3600 #取最近1800s的区间
 
         else:
             if self.timetuple !=None:

@@ -34,7 +34,7 @@ class MongoDBPipeline(object):
         self.collection = db[settings['MONGODB_COLLECTION']]
 
     def process_item(self, item, spider):
-        if len(item['news_title']) > 5 and len(item['news_abstract']) > 10 and len(item['news_body']) > 80 and len(
-                item['news_title']) > 9:
+        if len(item['news_title']) > 5 and len(item['news_abstract']) > 20 and len(item['news_abstract']) < 140and len(item['news_body']) > 80 and len(
+                item['news_title']) > 9 and len(item['news_title']) < 24:
             self.collection.insert(dict(item))
             return item

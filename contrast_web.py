@@ -1,27 +1,28 @@
 #encoding=utf-8
-import requests
-from  bs4 import BeautifulSoup
-from bs4 import NavigableString,Comment
+
 import re
 import time
 import hashlib
-import pymongo
 
+import requests
+from  bs4 import BeautifulSoup
+from bs4 import NavigableString,Comment
+import pymongo
 from settings import *
 
 RE_CHARSET = re.compile(br'<meta.*?charset=["\']*(.+?)["\'>]', flags=re.I)
 RE_PRAGMA = re.compile(br'<meta.*?content=["\']*;?charset=(.+?)["\'>]', flags=re.I)
 RE_XML = re.compile(br'^<\?xml.*?encoding=["\']*(.+?)["\'>]')
 
-STR_CLEAN=re.compile(r'[ |\n|\t|\r|<|>]')
-MUCH_NUM_OR_EN=re.compile(r'\w{7,}')
-EXIST_CH=re.compile(u"[\u4e00-\u9fa5]+")
+STR_CLEAN = re.compile(r'[ |\n|\t|\r|<|>]')
+MUCH_NUM_OR_EN = re.compile(r'\w{7,}')
+EXIST_CH = re.compile(u"[\u4e00-\u9fa5]+")
 
-EXTRACT_GROUP_INFO=re.compile(u'\|([^><]*)\|')
+EXTRACT_GROUP_INFO = re.compile(u'\|([^><]*)\|')
 
-PROCESS_SER_TEXT_1=re.compile(r'<\|(.*?)\|>')
+PROCESS_SER_TEXT_1 = re.compile(r'<\|(.*?)\|>')
 
-PROCESS_SER_TEXT_2=re.compile(r'\|\|')
+PROCESS_SER_TEXT_2 = re.compile(r'\|\|')
 
 bad_key=['href','class','blank','div','span','javascript','css','px','width','Copyright','_','void','span','<a>','<p>','|']
 
@@ -31,7 +32,7 @@ def testStr(string):
     '''
     用于检测此字符串是否是合法字符串
     '''
-    if len(MUCH_NUM_OR_EN.findall(string))==0 and len(EXIST_CH.findall(string))>0:
+    if len(MUCH_NUM_OR_EN.findall(string)) == 0 and len(EXIST_CH.findall(string)) > 0:
         for each in bad_key:
             if each in string:
                 return 0
@@ -54,7 +55,7 @@ def search(tag,res):
             continue
         
         if isinstance(each,NavigableString):
-            if len(each.string)>1:
+            if len(each.string) > 1:
                 if testStr(each.string):
 
                     res.append(cleanStr(each.string))
@@ -80,17 +81,17 @@ def search(tag,res):
 
 def print_change_dict(change_dict):
 
-    if len(change_dict['add'])>0:
+    if len(change_dict['add']) > 0:
         print u'新增条目:'
         for each in change_dict['add']:
             print '\t',each
             
-    if len(change_dict['remove'])>0:
+    if len(change_dict['remove']) > 0:
         print u'删除条目:'
         for each in change_dict['remove']:
             print '\t',each
             
-    if len(change_dict['update'])>0:
+    if len(change_dict['update']) > 0:
         print u'改动条目'
         for old,new in change_dict['update'].iteritems():
             print '{} ---> {}'.format(old,new)
@@ -105,37 +106,37 @@ class WebConstrast(object):
                 但只能选择出上一次未出现而这一次出现的语句，不能给出这些原来是是什么，
                 也不能给出这些变化的语句是否是新增的
         '''
-        connection=pymongo.MongoClient(MONGODB_HOST,MONGODB_PORT)
-        self.db=connection[MONGODB_DATABASE]
-        self.coll=self.db[collection]
-        self.url=url
-        self.is_first=is_first
-        self.mode=mode
+        connection = pymongo.MongoClient(MONGODB_HOST,MONGODB_PORT)
+        self.db = connection[MONGODB_DATABASE]
+        self.coll = self.db[collection]
+        self.url = url
+        self.is_first = is_first
+        self.mode = mode
 
     def download(self):
-        r=requests.get(self.url)
-        text=r.text
+        r = requests.get(self.url)
+        text  = r.text
         declared_encodings = (RE_CHARSET.findall(text)+RE_PRAGMA.findall(text) +RE_XML.findall(text))
-        if len(declared_encodings)>0:
-            enc=declared_encodings[0]
+        if len(declared_encodings) > 0:
+            enc = declared_encodings[0]
         else:
-            enc='utf-8'
-        r.encoding=enc
+            enc = 'utf-8'
+        r.encoding = enc
         return text
 
     def serialize(self,text):
         '''
         将网页源代码序列化
         '''
-        soup=BeautifulSoup(text,'html.parser').body
-        res=['<','|']
+        soup = BeautifulSoup(text,'html.parser').body
+        res = ['<','|']
 
 
         
         #去除
         for each in list(soup.descendants):
             try:
-                if each.name=='script' or each.text=='\n':
+                if each.name == 'script' or each.text == '\n':
                     each.extract()
             
             except :
@@ -143,9 +144,9 @@ class WebConstrast(object):
 
         search(soup,res)
         res.append('>')
-        text=''.join(res).encode('utf-8')
-        text=PROCESS_SER_TEXT_1.sub(r'|\g<1>|',text)
-        text=PROCESS_SER_TEXT_2.sub(r'',text)
+        text = ''.join(res).encode('utf-8')
+        text = PROCESS_SER_TEXT_1.sub(r'|\g<1>|',text)
+        text = PROCESS_SER_TEXT_2.sub(r'',text)
         return text
 
     def contrast_pres(self,text_old,text_new):
@@ -154,28 +155,28 @@ class WebConstrast(object):
         新旧网页在某一个区块内的数量相等时发生的改动为 ·update·
             若数目不相等，出现的改动为 ·add· 和 ·remove·
         '''
-        old_list=[]
-        new_list=[]
-        change_dict={'add':[],'remove':[],'update':{}}
+        old_list = []
+        new_list = []
+        change_dict = {'add':[],'remove':[],'update':{}}
         for each in EXTRACT_GROUP_INFO.findall(text_old):
             old_list.append(each.split('|'))
-            #print each.decode('utf-8')
+            # print each.decode('utf-8')
         for each in EXTRACT_GROUP_INFO.findall(text_new):
             new_list.append(each.split('|'))
 
         for i in range(len(old_list)):
 
-            #将在第i个区块的旧新闻列表转化为集合
-            old_list_set=set(old_list[i])
-            #print old_list_set
+            # 将在第i个区块的旧新闻列表转化为集合
+            old_list_set = set(old_list[i])
+            # print old_list_set
             
-            if len(old_list[i])==len(new_list[i]):
+            if len(old_list[i]) == len(new_list[i]):
                 for j in range(len(old_list[i])):
                     if new_list[i][j] not in old_list_set:
                         change_dict['update'][old_list[i][j]]=new_list[i][j]
 
             else:
-                new_list_set=set(new_list[i])
+                new_list_set = set(new_list[i])
                 for each in old_list[i]:
                     if each not in new_list_set:
                         change_dict['remove'].append(each)
@@ -193,45 +194,45 @@ class WebConstrast(object):
         模糊模式下的对比函数
         '''
         #此处使用set以完成去重，在函数返回时再将其转换成list
-        change_dict={'change':set([])}
-        old_list=set(EXIST_CH.findall(text_old))
-        new_list=EXIST_CH.findall(text_new)
+        change_dict = {'change':set([])}
+        old_list = set(EXIST_CH.findall(text_old))
+        new_list = EXIST_CH.findall(text_new)
 
         for each in new_list:
             if each not in old_list:
                 change_dict['change'].add(each)
 
-        change_dict['change']=list(change_dict['change'])
+        change_dict['change'] = list(change_dict['change'])
 
         return change_dict
                 
     def uptateUrl(self,url):
-        self.url=url
+        self.url = url
         
                 
     def run(self):
-        html=self.download()
-        ser_text=self.serialize(html)
+        html = self.download()
+        ser_text = self.serialize(html)
         #frm_text 抽象出网页结构 ex:<<>><<><><><>>><>
-        frm_text=''.join(re.findall(r'[<|>]',ser_text))
+        frm_text = ''.join(re.findall(r'[<|>]',ser_text))
         
-        ser_hash=hash(ser_text)
-        frm_hash=hash(frm_text)
+        ser_hash = hash(ser_text)
+        frm_hash = hash(frm_text)
 
-        self.ser_hash=ser_hash
-        self.frm_hash=frm_hash
-        self.ser_text=ser_text
+        self.ser_hash = ser_hash
+        self.frm_hash = frm_hash
+        self.ser_text = ser_text
 
         #print 'html_hash:',ser_hash
         #print 'frm_hash:',frm_hash
                         
         term={}
-        term['time']=time.time()
-        term['url']=self.url
-        term['ser_hash']=ser_hash
-        term['frm_hash']=frm_hash
-        term['ser_text']=ser_text
-        term['frm_text']=frm_text
+        term['time'] = time.time()
+        term['url'] = self.url
+        term['ser_hash'] = ser_hash
+        term['frm_hash'] = frm_hash
+        term['ser_text'] = ser_text
+        term['frm_text'] = frm_text
         
         if self.is_first:
             self.coll.insert_one(term)

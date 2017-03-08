@@ -51,9 +51,9 @@ data:{
             str1,str2 ...
           ]  
 		},
-		
+
 		{ // 一共有5个字典，除第一个以外无’time‘字段
-          date:'xx-xx', 
+          date:'xx-xx',
           changeList:[
             str1,str2 ...
           ]  
@@ -65,7 +65,7 @@ data:{
 
 
 
-## 
+##
 
 # accounts/
 
@@ -106,7 +106,7 @@ data: {
 POST
 
 data:{
-	username:"string",
+	email:"string",
 	password:"string",
 }
 
@@ -181,6 +181,8 @@ data {
     "email":"string",
     'acceptPost': int // 0 --> 不接受推送 , 1 -->接受推送
 }
+
+若未登陆 {errorCode :1}
 ```
 
 ### editUsername //修改用户名
@@ -219,8 +221,14 @@ GET:
 errorCode:int
 may errorMsg:string
 data:[
-	word1,word2,word3 ...
+  {
+    word:'str',
+    like: 0|1
+  },
+  ...
 ]
+
+若未登陆 {errorCode :1}
 ```
 
 ### addWatchTag // 增加关注内容
@@ -228,7 +236,7 @@ data:[
 POST:
 
 ```
-data: Tag
+word : Tag
 ```
 
 ### delWatchTag // 删除关注内容
@@ -236,7 +244,7 @@ data: Tag
 POST:
 
 ```
-data : Tag
+word : Tag
 ```
 
 
@@ -413,4 +421,3 @@ data :{
   }
 }
 ```
-

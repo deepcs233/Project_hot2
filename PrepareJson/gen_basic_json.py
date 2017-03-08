@@ -60,19 +60,37 @@ class genJsons(Basic):
                 'sim':{}
             }
 
-        #准备历史数据
-        for each in words.keys():
-            # 扩大选择范围，增强鲁棒性
-            s_time,l_time = start_time-3600,last_time+3600
-            for i in range(10):#取前10天的信息，每天的热度取一次
-                s_time -= 86400#秒 24*3600
-                l_time -= 86400
-                word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": start_time}}, {"words_time": {"$lte": last_time}}]})
+##        #准备历史数据
+##        for each in words.keys():
+##            # 扩大选择范围，增强鲁棒性
+##            s_time,l_time = start_time - 46400,last_time
+##            for i in range(9):#取前10天的信息，每天的热度取一次
+##                word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": s_time}}, {"words_time": {"$lte": l_time}}]})
+##                if word_dict==None:
+##
+##                    words[each]['history'].append(0)
+##                else:
+##
+##                    words[each]['history'].append(round(word_dict.get(each,0),1))
+##
+##                s_time -= 86400 #秒 24*3600
+##                l_time -= 86400
+##                
+##            words[each]['history'].reverse() #将历史逆序，越新的排在越后
+
+        s_time,l_time = start_time - 46400 ,last_time
+        for i in range(9):#取前9天的信息，每天的热度取一次
+            s_time -= 86400 #秒 24*3600
+            l_time -= 86400
+            word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": s_time}}, {"words_time": {"$lte": l_time}}]})
+
+            for each in words.keys():
                 if word_dict==None:
-                    words[each]['history'].append(0)
+
+                    words[each]['history'].insert(0,0)
                 else:
-                    words[each]['history'].append(round(word_dict.get(each[0],0),1))
-            words[each]['history'].reverse() #将历史逆序，越新的排在越后
+
+                    words[each]['history'].insert(0,round(word_dict.get(each,0),1))
 
 
 ##        #准备与该词语相似的新闻

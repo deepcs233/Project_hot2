@@ -19,7 +19,7 @@ colors = ['ff5353', 'ffa869', 'ffdc69', 'c3ed58', '58edcc']
 
 tTuple = time.localtime()
 time = {}
-time['day'] = u'星期'.encode('utf-8') + weekDict[tTuple[6]]
+time['day'] = u'星期' + weekDict[tTuple[6]]
 time['month'] = tTuple[1]
 time['date'] = tTuple[2]
 
@@ -64,5 +64,5 @@ html_content = loader.render_to_string(
                         
                    )
 #1942037006
-send_mail('Subject here', 'Here is the message.', 'dailynews@hottestdaily.com',
-    ['954880786@qq.com'], fail_silently=False,html_message = html_content)
+send_mail(u'每日推送', 'Here is the message.', 'dailynews@hottestdaily.com',
+    ['403297364@qq.com'], fail_silently=False,html_message = html_content)

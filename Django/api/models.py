@@ -39,3 +39,13 @@ class UsertoWord(models.Model):
 class UsertoTopic(models.Model):
     user=models.ForeignKey(User)
     topic=models.ForeignKey(Topic)
+
+class browseRecord(models.Model):
+    user = models.ForeignKey(User)
+    news_id = models.CharField(max_length=30)
+    update_time = models.DateTimeField(auto_now_add=True)
+
+class searchRecord(models.Model):
+    user = models.ForeignKey(User)
+    searchText = models.CharField(max_length=40)
+    update_time = models.DateTimeField(auto_now_add=True)

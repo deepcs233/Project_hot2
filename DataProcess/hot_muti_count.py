@@ -21,6 +21,7 @@ class CalcNewsHot(Basic):
         super(CalcNewsHot, self).__init__(is_last=1, timestamp=timestamp, \
                                        timetuple=timetuple, collection=collection)
     def run(self):
+
         start_time, last_time = self.process_time(column_sort='news_time', collection='news')
         for news in self.coll.find({"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}):
             count=news.get('count',0)

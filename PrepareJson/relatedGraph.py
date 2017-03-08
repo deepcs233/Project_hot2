@@ -49,7 +49,7 @@ class genRG(Basic):
                                       timetuple=timetuple,collection=collection)
         self.graph={"nodes":[],"edges":[]}
 
-    def add_node(self,label,x,y,_id,size):
+    def add_node(self,label,x,y,_id,size,url):
 
         #在函数内部完成查重
         for each in self.graph['nodes']:
@@ -62,7 +62,8 @@ class genRG(Basic):
             color=random.choice(ColdColors)
         
         # 下方的x*2是为了使生成的图更贴合屏幕
-        t = {"color":color,"label":label,"x":x*2,"y":y,"id":_id,"size":size}
+        t = {"color":color,"label":label,"x":x*2,"y":y,"id":_id,\
+             "size":size,'url':url}
         self.graph["nodes"].append(t)
 
     def add_edge(self,node_1,node_2,size=1):
@@ -88,7 +89,7 @@ class genRG(Basic):
         word_dict.pop('_id')
         word_dict.pop('words_time')
 
-        word_tuple = sorted(word_dict.iteritems(), key=lambda x: x[1], reverse=True)[0:28]
+        word_tuple = sorted(word_dict.iteritems(), key=lambda x: x[1], reverse=True)[0:30]
 
         for each in word_tuple:
             words_data.append([each[0], 0])  # 第二个数为该词被引用数
@@ -98,7 +99,7 @@ class genRG(Basic):
         start_time, last_time = self.process_time(column_sort="news_time", collection="news")
         for each_news in self.db['news'].find(
                 {"$and": [{"news_time": {"$gte": start_time}}, {"news_time": {"$lte": last_time}}]}). \
-                sort('hotxcount', pymongo.DESCENDING).limit(60):
+                sort('hotxcount', pymongo.DESCENDING).limit(100):
 
             # 随机选取一部分新闻
             if random.random()<0.8:continue;
@@ -106,7 +107,7 @@ class genRG(Basic):
             news_data.append(each_news)
             x, y = getRandomXY(280, 500)
             self.add_node(label=each_news['news_title'], x=x, y=y,
-                          _id=str(each_news['_id']), size=math.sqrt(each_news['hotxcount']) )
+                          _id=str(each_news['_id']), size=math.sqrt(each_news['hotxcount']),url = each_news['news_url'] )
             text = each_news["news_title"] + each_news["news_body"] + each_news['news_abstract']
  
             words_list = set(jieba.lcut(text))
@@ -126,7 +127,7 @@ class genRG(Basic):
             if word_quote[1] > 0:
                 x,y=getRandomXY(0+i*6,60+i*6)
   
-                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=math.sqrt(word_dict[word_quote[0]])*3.3)
+                self.add_node(label=word_quote[0], x=x, y=y,_id=word_quote[0], size=math.sqrt(word_dict[word_quote[0]])*3.3,url='')
 
         with open('graph_index.json','w') as f:
             json.dump(self.graph,f)

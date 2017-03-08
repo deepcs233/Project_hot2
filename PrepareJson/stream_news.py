@@ -169,8 +169,8 @@ class genStreamNews(Basic):
         streamJson['errorCode']=0
         streamJson['data']=self.newsStream
 
-        with open('readyStream_'+label+'.json','w') as f:
-            json.dump(streamJson,f)
+#        with open('readyStream_'+label+'.json','w') as f:
+#            json.dump(streamJson,f)
 
         with open(DJANGO_STATIC_PATH+'readyStream_'+label+'.json','w') as f:
 
@@ -266,8 +266,8 @@ class genStreamNews(Basic):
         streamJson['errorCode']=0
         streamJson['data']=self.newsStream
 
-        with open('readyStream.json','w') as f:
-            json.dump(streamJson,f)
+#        with open('readyStream.json','w') as f:
+#            json.dump(streamJson,f)
 
         with open(DJANGO_STATIC_PATH+'readyStream.json','w') as f:
 

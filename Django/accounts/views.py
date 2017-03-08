@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 import base64
 import re
+import os
+import random
 import datetime
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
@@ -14,13 +16,28 @@ import platform
 from .models import UserPostInfo,UserWatchTag
 from forms import RegisterForm
 
+file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/static/'
 
+gLabels = {u'财经',u'彩票',u'房产',u'股票',u'家居',
+              u'教育',u'科技',u'社会',u'时尚',u'时政',
+              u'体育',
+              u'星座',
+              u'游戏',u'娱乐'}
 
-
+dLabels = {u'财经':0,u'彩票':0,u'房产':0,u'股票':0,u'家居':0,
+              u'教育':0,u'科技':0,u'社会':0,u'时尚':0,u'时政':0,
+              u'体育':0,
+              u'星座':0,
+              u'游戏':0,u'娱乐':0}
 
 # Create your views here.
 ALLOW_CHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 SECRET_KEY = 'v65p7r0#gd3&56we-eus82!ch_0l+0gb%r6rzm(yy$amp#mps$'
+LAWLESS_CHAR = '<>:|/\\{}~`&%$'
+
+reg_email = r'([\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+)'  
+  
+email_check = re.compile(reg_email)
 
 def register(request):
     '''注册视图'''
@@ -66,14 +83,14 @@ def register(request):
 def login(request):
     '''登陆视图'''
     from django.contrib.auth.hashers import make_password
-    print make_password('123456')
+
     template_var = {}
     if request.method == 'POST':
         # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
         request.POST=json.loads(request.body)#['username']
-        username = request.POST.get("username")
+        email = request.POST.get("email")
         password = request.POST.get("password")
-        if _login(request, username, password, template_var):
+        if _login(request, email, password, template_var):
             return JsonResponse(({'errorCode': 0, 'errorMsg': ""}))
         else:
             return JsonResponse({'errorCode': 1, 'errorMsg':  template_var['error']})
@@ -82,21 +99,22 @@ def login(request):
     return JsonResponse(({'errorCode': 0, 'errorMsg': ""}))
 
 
-def _login(request, username, password, dict_var):
+def _login(request, email, password, dict_var):
     '''登陆核心方法'''
     ret = False
 
-    if len(User.objects.filter(username=username))==0:
-        dict_var['error']= u'用户' + username + u'不存在'
+    if len(User.objects.filter(email=email))==0:
+        dict_var['error']= u'用户不存在'
         return False
     else:
+        username=(User.objects.filter(email=email))[0].username
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
                 auth_login(request, user)
                 ret = True
             else:
-                dict_var["error"] = u'用户' + username + u'没有激活'
+                dict_var["error"] = u'用户没有激活'
         else:
             dict_var["error"] = u'用户名或密码错误'
         return ret
@@ -202,18 +220,24 @@ def getLoginStatus(request):
     else:
         return JsonResponse({'errorCode':1,'errorMsg':u'未知错误'})
 
-@login_required
+
 def getUserInfo(request):
     if request.method == 'POST':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else :
-        data = { }
-        t = UserPostInfo.objects.filter(user = request.user)[0]
-        data['errorCode'] = 0
-        data['email'] = t.email
-        data['acceptPost'] = t.acceptPost
-        data['username'] = User.objects.filter(user = request.user)[0].username
-        return JsonResponse(data)
+        if request.user.is_authenticated():
+            data = {}
+            if len(UserPostInfo.objects.filter(user = request.user)) > 0:
+                t = UserPostInfo.objects.filter(user = request.user)[0]
+                data['errorCode'] = 0
+                data['email'] = t.email
+                data['acceptPost'] = t.acceptPost
+                data['username'] = request.user.username
+            else:
+                data['errorCode'] = 0
+            return JsonResponse(data)
+        else:
+            return JsonResponse({'errorCode': 1,'errorMsg':u'用户未登录'}) 
 
 @login_required
 def getUsername(request):
@@ -247,6 +271,7 @@ def getUsername(request):
     
 @login_required
 def editUsername(request):
+
     if request.method == 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
@@ -257,13 +282,19 @@ def editUsername(request):
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
         username = request.POST.get('username')
         
-        if (User.objects.filter(user = request.user)[0]).username == username:
-            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原用户名相同'})
+        if len(username) > 20 :
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名超过20个字符长度'})
+        if len(username) < 4 :
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名小于4个字符长度'})
 
         if len(User.objects.filter(username = username)) > 0:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名已被使用'})
 
-        user = User.objects.filter(user = request.user)[0]
+        for ch in LAWLESS_CHAR:
+            if ch in username:
+                return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户名出现非法字符'})
+
+        user = request.user
 
         user.username = username
 
@@ -273,6 +304,7 @@ def editUsername(request):
     
 @login_required
 def editUserMail(request):
+
     if request.method == 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
@@ -284,10 +316,9 @@ def editUserMail(request):
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
         email = request.POST.get('email')
 
-
-        if  email == (UserPostInfo.objects.filter(user = request.user)[0]).email:
-            return JsonResponse({'errorCode': 1, 'errorMsg': u'与原邮箱相同'})
-
+        email_check.findall(email)
+        if len(email_check) == 0:
+            return JsonResponse({'errorCode': 1, 'errorMsg': u'邮箱格式非法'})
         user = UserPostInfo.objects.filter(user = request.user)[0]
         user.email = email
         user.save()
@@ -295,6 +326,7 @@ def editUserMail(request):
 
 @login_required
 def editUserAcceptPost(request):
+
     if request.method == 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
@@ -309,20 +341,22 @@ def editUserAcceptPost(request):
             user = UserPostInfo.objects.filter(user = request.user)[0]
             user.acceptPost = acceptPost
             user.save()
+            return JsonResponse({'errorCode': 0,})
         else:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
 
 @login_required
 def addWatchTag(request):
+
     if request.method == 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
         # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
         request.POST = json.loads(request.body)  # ['username'
 
-        if 'data' not in request.POST:
+        if 'word' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
-        tag = request.POST['data']
+        tag = request.POST['word']
 
         if len(tag) > 6 or len(tag) < 2 :
             return  JsonResponse({'errorCode': 1, 'errorMsg': u'词语长度需在2-4字之间'})
@@ -334,31 +368,55 @@ def addWatchTag(request):
         new.save()
         return JsonResponse({'errorCode': 0,})
 
-@login_required
+
 def getWatchList(request):
+
+    hh = dLabels.copy()
     if request.method != 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
-        t = {}
-        data = []
-        for each in UserWatchTag.objects.filter(user = request.user):
-            data.append(each.word)
-        t['errorCode'] = 0
-        t['data'] = data
+        if request.user.is_authenticated():
+            t = {}
+            data = []
+            for each in UserWatchTag.objects.filter(user = request.user):
+                u = {}
+                u['word'] = each.word
+                u['like'] = 1
+                data.append(u)
+                if each.word in hh:
+                    hh[each.word] = 1
 
-        return JsonResponse(t)
+            for each in hh:
+                if hh[each] == 0:
+                    data.append({'word':each,'like':0})
+
+            # 随机添加一些热词
+            with open(file_path + 'words.json','r') as f:
+                words = json.load(f)
+
+            for each in words['data']:
+                if random.random() < 0.1:
+                    data.append({'word':each["content"],'like':0})
+                    
+            t['errorCode'] = 0
+            t['data'] = data
+
+            return JsonResponse(t)
+        else:
+            return JsonResponse({'errorCode': 1,'errorMsg':u'用户未登录'})
 
 @login_required
 def delWatchTag(request):
+
     if request.method == 'GET':
         return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
     else:
         # 将request.body=str 反序列化为字典并保存在request.POST中，这个偷懒了
         request.POST = json.loads(request.body)  # ['username'
 
-        if 'data' not in request.POST:
+        if 'word' not in request.POST:
             return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误'})
-        tag = request.POST['data']
+        tag = request.POST['word']
 
         tt = UserWatchTag.objects.filter(user = request.user,word = tag)
         if len(tt) > 0:
