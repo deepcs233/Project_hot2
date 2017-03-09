@@ -235,7 +235,7 @@ class newsClassier(Basic):
             res = int(res[0])#numpy.int64->int
  #           news2words.append(vec)
 
-            pself.coll.update_one({"_id":each['_id']},{'$set':{'label':res,'label_ch':num_catalog[res]}})
+            self.coll.update_one({"_id":each['_id']},{'$set':{'label':res,'label_ch':num_catalog[res]}})
         
 #       df = DataFrame(news2words)
 #        df.to_csv(PROJECT_PATH+'news2words.csv')
