@@ -218,7 +218,7 @@ def getLoginStatus(request):
         else:
             return JsonResponse({'errorCode':0,'username':''})
     else:
-        return JsonResponse({'errorCode':1,'errorMsg':u'未知错误'})
+        return JsonResponse({'errorCode':1,'errorMsg':u'用户不存在或尚未激活'})
 
 
 def getUserInfo(request):

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import platform
+sysstr = platform.system()
+
 # Scrapy settings for news project
 #
 # For simplicity, this file contains only settings considered important or
@@ -10,6 +13,16 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
 BOT_NAME = 'news'
+
+LOG_ENABLED = True
+LOG_STDOUT = True
+LOG_LEVEL = 'WARNING'
+
+if sysstr =='Windows':
+    LOG_FILE = "C:\Users\Administrator\Desktop\scrapy.txt"
+else:
+    LOG_FILE = "/home/ubuntu/scrapy.txt"
+
 
 SPIDER_MODULES = ['news.spiders']
 NEWSPIDER_MODULE = 'news.spiders'
