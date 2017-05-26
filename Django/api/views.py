@@ -137,3 +137,11 @@ def clickNews(request):
             newone.save()
 
             return JsonResponse({'errorCode': 0})
+
+def newstrail(request):
+    if request.method != 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+    else:
+        with open(file_path+'trail.json','r') as f:
+            trail = json.load(f)
+        return  JsonResponse(trail)

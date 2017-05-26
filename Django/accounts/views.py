@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 import json
 import platform
-from .models import UserPostInfo,UserWatchTag
+from .models import UserPostInfo,UserWatchTag,UserBrowseNews
 from forms import RegisterForm
 
 file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/static/'
@@ -426,7 +426,17 @@ def delWatchTag(request):
             return JsonResponse({'errorCode': 1, 'errorMsg': u'该用户没有关注此词语'})
 
 
+def UserBrowseNews(request):
 
+    if request.method == 'POST':
+        if request.user.is_authenticated():
+
+            request.POST = json.loads(request.body)
+            if 'data' in request.POST:
+                t = UserBrowseNews('vbfd')
+                t.save()
+                return JsonResponse({'errorCode': 0,})
+    return JsonResponse({'errorCode': 1,})
 
 def getCipherUrl(username):
     

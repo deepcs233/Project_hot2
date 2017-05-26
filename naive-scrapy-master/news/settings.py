@@ -99,8 +99,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'news.pipelines.MongoDBPipeline': 1,
-#    'news.pipelines.NewsPipeline': 1,
+#    'news.pipelines.MongoDBPipeline': 1,
+    'news.pipelines.NewsPipeline': 1,
 }
 
 MONGODB_HOST = 'localhost' # Change in prod

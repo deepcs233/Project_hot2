@@ -9,6 +9,7 @@ from bson.objectid import ObjectId
 import jieba
 import random
 import math
+import jieba.posseg as pseg
 
 sys.path.append('../') # 在路径中添加上级目录，方便导入父级目录的settings
 
@@ -45,12 +46,15 @@ class genJsons(Basic):
         word_dict=self.db['words'].find_one({"$and":[{"words_time":{"$gte":start_time}},{"words_time":{"$lte":last_time}}]})
         
         #入选前100个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
-        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:54]
-
+        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:100]
+        
+        # 仅保留名词
+        words_sorted=filter(lambda x :list(pseg.cut(x[0]))[0].flag =='n', words_sorted)
+        print words_sorted
         # 对热度进行归一
         max_hot=words_sorted[0][1]
         min_hot=words_sorted[-1][1]
-        print max_hot,min_hot
+
         
         for each in words_sorted:
             #print each[1]
@@ -140,6 +144,8 @@ class genJsons(Basic):
 ##            t['label']=each_word_dict['label']
             t['history']=each_word_dict['history']
             words_data.append(t)
+
+        words_data = sorted(words_data, key = lambda x: x['hot'], reverse=True)
 
         words={}
         words['errorCode']=0

@@ -65,7 +65,7 @@ data:{
 
 
 
-##
+#
 
 # accounts/
 
@@ -253,6 +253,14 @@ word : Tag
 
 
 
+### UserBrowseNews
+
+POST
+
+```
+data:str //标题
+```
+
 
 
 # api/
@@ -390,6 +398,36 @@ data: {
   ]
 }
 ```
+
+
+
+### newstrail
+
+```
+GET
+data:{
+timeaxis:
+[
+  {
+    time: str (可能为空)
+    keywords: [str, str ...]
+    text:str
+  }
+  , ...
+]
+graph:
+{}
+  str: [float, float, float ...],
+  [],
+  []
+  , ...
+}
+}
+```
+
+
+
+
 
 
 

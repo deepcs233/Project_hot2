@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^getWatchList',views.getWatchList ,name='getWatchList'),
     url(r'^addWatchTag',views.addWatchTag,name='addWatchTag'),
     url(r'^delWatchTag',views.delWatchTag ,name='delWatchTag'),
+    url(r'^UserBrowseNews',views.UserBrowseNews,name='UserBrowseNews'),
     url(r'.*',views.login,name='login'),
 
 ]
