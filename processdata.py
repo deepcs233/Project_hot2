@@ -11,35 +11,35 @@ st=time.time()
 a = clac_word_freq.CalcFreq()
 a.run()
 
-print 'clac_word_freq:',time.time()-st
+print 'clac_word_freq:',time.time()-st,'s'
 st=time.time()
 
 #5s
 b=clac_news_hot.CalcNewsHot()
 b.run()
 
-print 'clac_news_hot:',time.time()-st
+print 'clac_news_hot:',time.time()-st,'s'
 st=time.time()
 
 #99s
 c=classify_news.newsClassier()
 c.run()
 
-print 'classify_news:',time.time()-st
+print 'classify_news:',time.time()-st,'s'
 st=time.time()
 
 #75s
 d=rm_samenews.Deduplication()
 d.run()
 
-print 'rm_samenews:',time.time()-st
+print 'rm_samenews:',time.time()-st,'s'
 st=time.time()
 
 #5s
 e=hot_muti_count.CalcNewsHot()
 e.run()
 
-print 'hot_muti_count:',time.time()-st
+print 'hot_muti_count:',time.time()-st,'s'
 st=time.time()
 
 #255s
@@ -52,7 +52,7 @@ f.run()
 #--------------------Prepare Json-------------------------------
 
 
-print 'cluster_news:',time.time()-st
+print 'cluster_news:',time.time()-st,'s'
 st=time.time()
 
 # 85s
@@ -60,7 +60,7 @@ f=gen_basic_json.genJsons()
 f.prepare_words()
 
 
-print 'gen_basic_json:',time.time()-st
+print 'gen_basic_json:',time.time()-st,'s'
 st=time.time()
 
 # 4s
@@ -79,14 +79,14 @@ st=time.time()
 g=relatedGraph.genRG()
 g.run()
 
-print 'relatedGraph:',time.time()-st
+print 'relatedGraph:',time.time()-st,'s'
 st=time.time()
 
 # 2s
 h=stream_news.genStreamNews()
 h.run()
 
-print 'stream_news:',time.time()-st
+print 'stream_news:',time.time()-st,'s'
 st=time.time()
 
 

@@ -190,7 +190,7 @@ class newsClassier(Basic):
                 
                 t=sorted(t,key=lambda x:x[1],reverse=True)
                 res.append(t)
-                print chenfen
+                # print chenfen
         else:
             res=self.clf.predict(X_test)
         return res, vec
@@ -220,7 +220,7 @@ class newsClassier(Basic):
         news2words = []
         #搜索新闻的时间区间
         start_time,last_time=self.process_time(column_sort="news_time")
-        print start_time,last_time
+        #print start_time,last_time
         for each in self.coll.find({"$and":[{"news_time":{"$gte":start_time}},\
                                                {"news_time":{"$lte":last_time}}]}
 ):

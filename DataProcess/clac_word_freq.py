@@ -20,6 +20,12 @@ stopwords=set([x.rstrip('\n').decode('utf8') for x in g])
 with open(PROJECT_PATH+'idf.json','r') as f:
     idf=json.load(f)
 
+with open(PROJECT_PATH+'area2province.json', 'r') as f:
+    area2province = json.load(f)
+
+province_counts = {}
+area_counts = {}
+
 class CalcFreq(Basic):
     def __init__(self,is_last=1,timestamp=None,timetuple=None,collection='news'):
         '''
@@ -46,6 +52,11 @@ class CalcFreq(Basic):
         for each in word_list:
             if len(each)>1 and '.' not in each and each not in stopwords and len(re.findall(r'^\d{2,3}$',each))==0:
                 word_dict.setdefault(each,0)
+                if each in area2province:
+                    area_counts.setdefault(each, 0)
+                    area_counts[each] += 1
+                    province_counts.setdefault(area2province[each], 0)
+                    province_counts[area2province[each]] += 1
 
                 # 使用td-idf词典，若该词未出现过则取默认值19.1
                 word_dict[each]+=idf.get(each,19.1)
@@ -55,6 +66,10 @@ class CalcFreq(Basic):
         coll_save=self.db[collection]
         self.dict['words_time']=time.time()
         coll_save.insert_one(self.dict)
+        with open(JSON_STORE_PATH + 'province_counts.json', 'w') as f:
+            json.dump(province_counts, f)
+        with open(JSON_STORE_PATH + 'area_counts.json', 'w') as f:
+            json.dump(area_counts, f)
 
     def run(self,collection='words'):
         

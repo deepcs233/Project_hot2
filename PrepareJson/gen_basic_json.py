@@ -40,17 +40,39 @@ class genJsons(Basic):
                                       timetuple=timetuple,collection=collection)
 
     def prepare_words(self):
+        '''
+        取词频变化作为热度衡量标准
+        '''
         words={}
         start_time,last_time=self.process_time(column_sort='words_time',collection='words')
 
-        word_dict=self.db['words'].find_one({"$and":[{"words_time":{"$gte":start_time}},{"words_time":{"$lte":last_time}}]})
+        word_dict = list(self.db['words'].find().sort('words_time'))
         
-        #入选前100个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
-        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:100]
+        # 取出最后两个词频字典进行比较
+        words_new = word_dict[-1]
+        words_old = word_dict[-4]
+        word_change = {} 
         
+        
+        words_sorted = sorted(words_new.iteritems(),key=lambda x:x[1], reverse=True)
+        words_old_sorted = sorted(words_old.iteritems(),key=lambda x:x[1], reverse=True)
+
+        # 取旧词频排名的第1000位作为基准
+        old_baseline = words_old_sorted[1000][1]
+        
+        #入选前200个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
+        for each in words_sorted[4:400]:
+            if each[0] in words_old:
+                word_change[each[0]] = each[1] / words_old[each[0]]
+            else:
+                word_change[each[0]] = each[1] / old_baseline
+        
+        
+        
+        words_sorted=sorted(word_change.iteritems(), key = lambda x:x[1], reverse=True)[:60]
         # 仅保留名词
-        words_sorted=filter(lambda x :list(pseg.cut(x[0]))[0].flag =='n', words_sorted)
-        print words_sorted
+        # words_sorted=filter(lambda x :list(pseg.cut(x[0]))[0].flag =='n', words_sorted)
+        
         # 对热度进行归一
         max_hot=words_sorted[0][1]
         min_hot=words_sorted[-1][1]
@@ -132,6 +154,76 @@ class genJsons(Basic):
 ##                words[each]['label']=sorted(t_dict.iteritems(),key=lambda x: x[1],reverse=True)[0][0]
 ##            else:
 ##                words[each]['label']=u'暂无'
+                
+        # 以下部分将旧格式的words.josn转化        
+        words_data=[]
+
+        for content,each_word_dict in words.iteritems():
+
+            t={}
+            t['content']=content
+            t['hot']=int(each_word_dict['hot'])
+##            t['label']=each_word_dict['label']
+            t['history']=each_word_dict['history']
+            words_data.append(t)
+
+        words_data = sorted(words_data, key = lambda x: x['hot'], reverse=True)
+
+        words={}
+        words['errorCode']=0
+        words['data']=words_data
+
+        with open(DJANGO_STATIC_PATH+'words.json','w') as f:
+
+            json.dump(words,f)
+        with open(JSON_STORE_PATH+'words.json','w') as f:
+            json.dump(words,f)
+
+    def prepare_words_abso(self):
+        '''
+        取词频作为热度衡量标准
+        '''
+        words={}
+        start_time,last_time=self.process_time(column_sort='words_time',collection='words')
+
+        word_dict=self.db['words'].find_one({"$and":[{"words_time":{"$gte":start_time}},{"words_time":{"$lte":last_time}}]})
+        
+        #入选前100个词语 第一个为Object_id,第二个为words_time 故跳过,第三四个为'中国'/'美国',跳过
+        words_sorted=sorted(word_dict.iteritems(),key=lambda x: x[1],reverse=True)[4:100]
+        
+        # 仅保留名词
+        words_sorted=filter(lambda x :list(pseg.cut(x[0]))[0].flag =='n', words_sorted)
+        #print words_sorted
+        # 对热度进行归一
+        max_hot=words_sorted[0][1]
+        min_hot=words_sorted[-1][1]
+
+        
+        for each in words_sorted:
+            #print each[1]
+            words[each[0]]={
+                'hot':round(normalizeHot(each[1],max_hot,min_hot),1),
+                'history':[round(each[1],1)],
+                'sim':{}
+            }
+
+
+        s_time,l_time = start_time - 46400 ,last_time
+        for i in range(9):#取前9天的信息，每天的热度取一次
+            s_time -= 86400 #秒 24*3600
+            l_time -= 86400
+            word_dict=self.db['words'].find_one({"$and": [{"words_time": {"$gte": s_time}}, {"words_time": {"$lte": l_time}}]})
+
+            for each in words.keys():
+                if word_dict==None:
+
+                    words[each]['history'].insert(0,0)
+                else:
+
+                    words[each]['history'].insert(0,round(word_dict.get(each,0),1))
+
+
+
                 
         # 以下部分将旧格式的words.josn转化        
         words_data=[]
