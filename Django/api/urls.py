@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'getHotWords',views.getHotWords,name='getHotWords'),
     url(r'clickNews',views.clickNews,name='clickNews'),
     url(r'newstrail',views.newstrail,name='newstrail'),
+    url(r'geodata',views.geodata,name='geodata'),
 ]

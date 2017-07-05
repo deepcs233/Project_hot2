@@ -145,3 +145,13 @@ def newstrail(request):
         with open(file_path+'trail.json','r') as f:
             trail = json.load(f)
         return  JsonResponse(trail)
+
+def geodata(request):
+    if request.method != 'GET':
+        return JsonResponse({'errorCode': 1, 'errorMsg': u'未知错误！'})
+    else:
+        with open(file_path+'province_counts.json','r') as f:
+                data = json.load(f)
+
+        data['errorCode'] = 0
+        return  JsonResponse(data)

@@ -427,6 +427,20 @@ graph:
 
 
 
+## geodata
+
+```
+GET
+data:{
+  'errorCode': int,
+  'errorMsg':str,
+  data:[
+    {name: str, value: number},
+    ...
+  ]
+}
+```
+
 
 
 

@@ -66,8 +66,19 @@ class CalcFreq(Basic):
         coll_save=self.db[collection]
         self.dict['words_time']=time.time()
         coll_save.insert_one(self.dict)
+        
+        province_counts_data = []
+        for key, value in province_counts.iteritems():
+            if key[:2] in [u'宁夏',u'新疆',u'广西',u'香港',u'澳门']:
+                key = key[:2]
+            elif key[:3] == u'内蒙古':
+                key = key[:3]
+            else:
+                # 其他如 **省
+                key = key[:-1]
+            province_counts_data.append({'name':key,'value':value})
         with open(JSON_STORE_PATH + 'province_counts.json', 'w') as f:
-            json.dump(province_counts, f)
+            json.dump({'data':province_counts_data}, f)
         with open(JSON_STORE_PATH + 'area_counts.json', 'w') as f:
             json.dump(area_counts, f)
 
